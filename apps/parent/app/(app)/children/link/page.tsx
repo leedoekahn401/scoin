@@ -1,5 +1,5 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="Link another child" note="Enter an invite code" />;
+  return <Placeholder title="Liên kết thêm con" note="Nhập mã mời (FR-FAM-02)" />;
 }

@@ -16,9 +16,11 @@
     "db:seed": "pnpm --filter @schoolcoin/api db:seed",
     "db:reset": "pnpm --filter @schoolcoin/api db:reset",
     "api:generate": "pnpm --filter @schoolcoin/api-client generate",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:ui": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "prettier": "^3.4.2",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"

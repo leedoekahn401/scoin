@@ -1,15 +1,15 @@
-import type { Role } from '@schoolcoin/types';
+import { can, type Permission, type Role } from '@schoolcoin/types';
 import type { ReactNode } from 'react';
 
-/** Hides UI by role. The API still enforces every permission. */
+/** Hides UI by role. The API still enforces every permission (NFR-SEC-04). */
 export function RoleGate({
   role,
-  allow,
+  permission,
   children,
 }: {
   role: Role;
-  allow: Role[];
+  permission: Permission;
   children: ReactNode;
 }) {
-  return allow.includes(role) ? <>{children}</> : null;
+  return can(role, permission) ? <>{children}</> : null;
 }

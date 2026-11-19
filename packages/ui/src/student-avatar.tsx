@@ -1,6 +1,22 @@
-export function StudentAvatar({ name, photoUrl }: { name: string; photoUrl?: string | null }) {
+import { cn } from './lib/utils';
+
+export function StudentAvatar({
+  name,
+  photoUrl,
+  className,
+}: {
+  name: string;
+  photoUrl?: string | null;
+  className?: string;
+}) {
   if (photoUrl) {
-    return <img src={photoUrl} alt={name} className="h-12 w-12 rounded-full object-cover" />;
+    return (
+      <img
+        src={photoUrl}
+        alt={name}
+        className={cn('h-12 w-12 rounded-full object-cover', className)}
+      />
+    );
   }
   const initials = name
     .split(' ')
@@ -9,7 +25,12 @@ export function StudentAvatar({ name, photoUrl }: { name: string; photoUrl?: str
     .join('')
     .toUpperCase();
   return (
-    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-700">
+    <span
+      className={cn(
+        'flex h-12 w-12 items-center justify-center rounded-full bg-accent font-semibold text-accent-foreground',
+        className,
+      )}
+    >
       {initials}
     </span>
   );

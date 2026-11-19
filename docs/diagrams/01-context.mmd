@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph Clients
+    POS[POS app - Next.js]
+    PAR[Parent app - Next.js PWA]
+    KIO[Kiosk app - Next.js]
+    ADM[Admin page - Next.js]
+  end
+  API[SchoolCoin API - NestJS]
+  DB[(PostgreSQL)]
+  SEPAY[SePay]
+  BANK[Parent's banking app]
+  MAIL[SMTP email service]
+  POS --> API
+  PAR --> API
+  KIO --> API
+  ADM --> API
+  API --> DB
+  BANK -- bank transfer --> SEPAY
+  SEPAY -- webhook --> API
+  API --> MAIL

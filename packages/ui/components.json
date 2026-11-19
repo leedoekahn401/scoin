@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "../config/tailwind.preset.mjs",
+    "css": "",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@schoolcoin/ui/components",
+    "ui": "@schoolcoin/ui/components",
+    "utils": "@schoolcoin/ui/lib/utils",
+    "lib": "@schoolcoin/ui/lib",
+    "hooks": "@schoolcoin/ui/hooks"
+  }
+}

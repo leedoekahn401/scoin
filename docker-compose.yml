@@ -1,4 +1,6 @@
-# Local dev services. Start with: docker compose up -d
+# Local dev services.
+#   docker compose up -d                 → postgres + mailpit (run the apps with `pnpm dev`)
+#   docker compose --profile full up -d  → also the API and all four apps in containers (NFR-POR-01)
 services:
   postgres:
     image: postgres:16
@@ -7,21 +9,55 @@ services:
       POSTGRES_PASSWORD: schoolcoin
       POSTGRES_DB: schoolcoin
     ports:
-      - "${POSTGRES_PORT:-5432}:5432" # POSTGRES_PORT=5433 if a local Postgres already uses 5432
+      - '${POSTGRES_PORT:-5432}:5432' # POSTGRES_PORT=5433 if a local Postgres already uses 5432
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./infra/docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U schoolcoin"]
+      test: ['CMD-SHELL', 'pg_isready -U schoolcoin']
       interval: 5s
       timeout: 3s
       retries: 10
 
   mailpit:
-    image: axllent/mailpit:latest
+    image: axllent/mailpit:v1.21
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # web inbox
+      - '1025:1025' # SMTP
+      - '8025:8025' # web inbox
+
+  api:
+    profiles: [full]
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    env_file: apps/api/.env
+    environment:
+      DATABASE_URL: postgresql://schoolcoin:schoolcoin@postgres:5432/schoolcoin
+      SMTP_HOST: mailpit
+      UPLOAD_DIR: /data/uploads
+    ports: ['4000:4000']
+    volumes: [uploads:/data/uploads]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  pos:
+    profiles: [full]
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: pos } }
+    ports: ['3001:3000']
+  parent:
+    profiles: [full]
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: parent } }
+    ports: ['3002:3000']
+  kiosk:
+    profiles: [full]
+    build:
+      context: .
+      dockerfile: infra/docker/next.Dockerfile
+      args: { APP: kiosk, NEXT_PUBLIC_KIOSK_KEY: dev-kiosk-key-change-me }
+    ports: ['3003:3000']
+  admin:
+    profiles: [full]
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: admin } }
+    ports: ['3004:3000']
 
 volumes:
   pgdata:
+  uploads:

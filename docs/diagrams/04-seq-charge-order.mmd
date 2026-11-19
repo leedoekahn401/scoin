@@ -1,0 +1,23 @@
+sequenceDiagram
+  actor C as Cashier
+  participant POS as POS app
+  participant API as SchoolCoin API
+  participant DB as PostgreSQL
+  C->>POS: Add items to cart
+  C->>POS: Scan student card
+  POS->>API: POST /pos/lookup {cardCode}
+  API-->>POS: name, photo, class, balance, remainingToday
+  opt total above PIN threshold
+    POS->>POS: Student enters PIN
+  end
+  C->>POS: Charge
+  POS->>API: POST /pos/orders {cardCode, items, pin, idempotencyKey}
+  API->>DB: BEGIN, SELECT wallet FOR UPDATE
+  API->>API: Check card, PIN, balance, daily limit
+  alt All checks pass
+    API->>DB: INSERT order, items, ledger PURCHASE, UPDATE balance, COMMIT
+    API-->>POS: 201 Paid, new balance
+  else A check fails
+    API->>DB: ROLLBACK
+    API-->>POS: 422 with reason code
+  end

@@ -1,6 +1,6 @@
 # 0002 — Append-only ledger with row locking
 
-**Status:** Accepted
+**Status:** Accepted · SRS B5, NFR-REL-01, FR-WAL-01…05
 
 ## Context
 
@@ -9,17 +9,23 @@ hit the same wallet at the same moment.
 
 ## Decision
 
-- Every balance change appends a `ledger_entries` row (signed `amount_credits`, `balance_after`).
-  Rows are never updated or deleted; corrections are new entries (VOID, REFUND, ADJUSTMENT).
-- `wallets.balance_credits` is a cached balance, updated in the same transaction.
-- `WalletService` opens a transaction and runs `SELECT ... FROM wallets WHERE id = $1 FOR UPDATE`
-  before reading the balance, so concurrent changes to one wallet run one at a time.
-- A database `CHECK (balance_credits >= 0)` is the last line of defence.
-- POS charges carry an `idempotencyKey` (unique on `Order`) so a retried request never charges twice.
-- A nightly job checks `balance_credits = SUM(amount_credits)` for every wallet.
+- Every balance change appends a `ledger_entries` row: type (`TOPUP_SEPAY`, `TOPUP_CASH`,
+  `PURCHASE`, `VOID_REVERSAL`, `REFUND`, `ADJUSTMENT`), signed `amountCredits`, `balanceAfter`,
+  `refType`/`refId`, actor and time. Corrections are new entries, never edits (FR-WAL-04);
+  a database trigger rejects UPDATE and DELETE on the table.
+- `wallets.balanceCredits` is a cached balance, updated in the same transaction.
+- `WalletService` opens a transaction and runs
+  `SELECT id, "balanceCredits" FROM wallets WHERE "studentId" = $1 FOR UPDATE` before reading the
+  balance, so concurrent changes to one wallet run one after the other.
+- `CHECK ("balanceCredits" >= 0)` is the last line of defence (BR-02).
+- POS charges carry an `idempotencyKey` (unique on `orders`) so a retried request never charges
+  twice (NFR-REL-02). Webhooks dedup on SePay's transaction id, the primary key of
+  `sepay_transactions` (NFR-REL-03).
+- Emails, SSE events and low-balance alerts happen after commit, never inside the transaction.
+- A nightly job checks `balanceCredits = SUM(amountCredits)` for every wallet (B9).
 
 ## Consequences
 
 - Correct under concurrency without application-level locks.
 - Full history for audits and reconciliation.
-- All money code must go through `WalletService`; direct writes to `wallets` are a review blocker.
+- All money code goes through `WalletService`; direct writes to `wallets` are a review blocker.

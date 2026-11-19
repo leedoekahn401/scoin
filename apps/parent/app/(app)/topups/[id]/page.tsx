@@ -1,5 +1,10 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="Pay by bank transfer" note="QR + countdown, live status via SSE" />;
+  return (
+    <Placeholder
+      title="Chuyển khoản"
+      note="Mã VietQR, đếm ngược 30 phút, tự chuyển sang thành công (FR-TOP-05)"
+    />
+  );
 }

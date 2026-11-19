@@ -1,5 +1,5 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="Top-up report" />;
+  return <Placeholder title="Báo cáo nạp tiền" note="(FR-RPT-02)" />;
 }

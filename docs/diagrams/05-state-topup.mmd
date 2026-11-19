@@ -1,0 +1,8 @@
+stateDiagram-v2
+  [*] --> PENDING: parent starts top-up
+  PENDING --> PAID: matching transfer received
+  PENDING --> EXPIRED: 30 minutes pass
+  EXPIRED --> PAID: late matching transfer
+  PENDING --> CANCELLED: parent cancels
+  PAID --> [*]
+  CANCELLED --> [*]

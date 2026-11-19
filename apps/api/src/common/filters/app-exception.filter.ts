@@ -16,6 +16,8 @@ const STATUS_CODES: Partial<Record<number, ErrorCode>> = {
   403: 'FORBIDDEN',
   404: 'NOT_FOUND',
   409: 'CONFLICT',
+  429: 'RATE_LIMITED',
+  501: 'NOT_IMPLEMENTED',
 };
 
 /** Every error leaves the API as { error: { code, message, details } }. */

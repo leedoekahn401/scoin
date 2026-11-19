@@ -1,5 +1,5 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="Scan your card" />;
+  return <Placeholder title="Quẹt thẻ của em" note="(FR-KIO-01)" />;
 }

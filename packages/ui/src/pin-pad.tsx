@@ -1,16 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { cn } from './lib/utils';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'back'] as const;
 
 export interface PinPadProps {
   length?: number;
   onComplete: (pin: string) => void;
+  disabled?: boolean;
 }
 
-/** Shared by POS and kiosk. */
-export function PinPad({ length = 4, onComplete }: PinPadProps) {
+/** Shared by POS and kiosk. The PIN is never shown, only the dot count (NFR-SEC-02). */
+export function PinPad({ length = 4, onComplete, disabled }: PinPadProps) {
   const [pin, setPin] = useState('');
 
   function press(key: (typeof KEYS)[number]) {
@@ -25,23 +27,24 @@ export function PinPad({ length = 4, onComplete }: PinPadProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex gap-2" aria-label={`${pin.length} of ${length} digits entered`}>
+    <div className="flex flex-col items-center gap-6">
+      <div className="flex gap-3" aria-label={`Đã nhập ${pin.length} trên ${length} số`}>
         {Array.from({ length }, (_, i) => (
           <span
             key={i}
-            className={`h-4 w-4 rounded-full ${i < pin.length ? 'bg-gray-900' : 'bg-gray-300'}`}
+            className={cn('h-4 w-4 rounded-full', i < pin.length ? 'bg-foreground' : 'bg-muted')}
           />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {KEYS.map((key) => (
           <button
             key={key}
             type="button"
+            disabled={disabled}
             onClick={() => press(key)}
-            aria-label={key === 'clear' ? 'Clear' : key === 'back' ? 'Delete last digit' : key}
-            className="h-16 w-16 rounded-lg bg-gray-100 text-xl font-semibold hover:bg-gray-200"
+            aria-label={key === 'clear' ? 'Xóa hết' : key === 'back' ? 'Xóa số cuối' : key}
+            className="h-20 w-20 rounded-xl bg-secondary text-2xl font-semibold hover:bg-secondary/70 disabled:opacity-50"
           >
             {key === 'clear' ? 'C' : key === 'back' ? '⌫' : key}
           </button>

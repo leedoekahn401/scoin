@@ -1,0 +1,25 @@
+sequenceDiagram
+  actor P as Parent
+  participant PA as Parent app
+  participant API as SchoolCoin API
+  participant DB as PostgreSQL
+  participant B as Banking app
+  participant S as SePay
+  P->>PA: Choose child + 100 credits
+  PA->>API: POST /parent/topups
+  API->>DB: INSERT top_up (PENDING, code SC48213907)
+  API-->>PA: QR URL, 100,000 VND, code, expiresAt
+  PA->>API: GET /parent/topups/:id/events (SSE)
+  P->>B: Scan VietQR, confirm transfer
+  B->>S: Transfer arrives in school account
+  S->>API: POST /webhooks/sepay (Authorization: Apikey ...)
+  API->>API: Verify API key
+  API->>DB: INSERT sepay_transaction (unique id)
+  alt First delivery and code matches
+    API->>DB: BEGIN, lock wallet, ledger TOPUP_SEPAY, update balance, top_up PAID, COMMIT
+    API-->>PA: SSE event PAID (new balance)
+    API->>P: Email receipt
+  else Duplicate delivery
+    API->>API: Skip processing
+  end
+  API-->>S: 200 {"success": true}

@@ -1,0 +1,39 @@
+flowchart LR
+  Parent((Parent))
+  Student((Student))
+  Cashier((Cashier))
+  Manager((Cafeteria manager))
+  Accountant((Accountant))
+  Admin((Council admin))
+  SePay((SePay))
+  subgraph SchoolCoin
+    UC01[UC-01 Register and link child]
+    UC03[UC-03 View balance and transactions]
+    UC04[UC-04 Top up via VietQR]
+    UC05[UC-05 Set controls]
+    UC06[UC-06 Answer credit request]
+    UC07[UC-07 Lock lost card]
+    UC08[UC-08 Charge order]
+    UC09[UC-09 Void order]
+    UC10[UC-10 Check balance at kiosk]
+    UC11[UC-11 Ask parent for credits]
+    UC12[UC-12 Manage menu]
+    UC13[UC-13 Manage cashiers]
+    UC14[UC-14 Cash top-up]
+    UC15[UC-15 Resolve unmatched payment]
+    UC16[UC-16 Record refund]
+    UC17[UC-17 View reports]
+    UC18[UC-18 Manage students and cards]
+    UC19[UC-19 Manage staff and roles]
+    UC22[UC-22 Audit log]
+    UC23[UC-23 Receive transfer notification]
+  end
+  Parent --- UC01 & UC03 & UC04 & UC05 & UC06 & UC07
+  Student --- UC10 & UC11
+  Cashier --- UC08 & UC09
+  Manager --- UC12 & UC13 & UC09 & UC17
+  Accountant --- UC14 & UC15 & UC16 & UC17
+  Admin --- UC18 & UC19 & UC22 & UC07 & UC17
+  SePay --- UC23
+  UC06 -. includes .-> UC04
+  UC23 -. completes .-> UC04

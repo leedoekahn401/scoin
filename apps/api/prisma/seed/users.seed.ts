@@ -1,36 +1,75 @@
 import { PrismaClient, Role, type User } from '@prisma/client';
-import { hash } from 'bcryptjs';
+import { hashSecret } from '../../src/common/utils/hash';
 
 /** Every demo account uses this password. Dev/demo only. */
-export const DEMO_PASSWORD = 'Password123!';
+export const DEMO_PASSWORD = 'SchoolCoin@2026';
 
-const STAFF: { email: string; fullName: string; role: Role }[] = [
-  { email: 'admin@schoolcoin.local', fullName: 'Admin', role: Role.ADMIN },
-  { email: 'accountant@schoolcoin.local', fullName: 'Kế toán', role: Role.ACCOUNTANT },
-  { email: 'manager@schoolcoin.local', fullName: 'Quản lý căn tin', role: Role.MANAGER },
-  { email: 'cashier1@schoolcoin.local', fullName: 'Thu ngân 1', role: Role.CASHIER },
-  { email: 'cashier2@schoolcoin.local', fullName: 'Thu ngân 2', role: Role.CASHIER },
+interface SeedUser {
+  key: string;
+  role: Role;
+  fullName: string;
+  email?: string;
+  username?: string;
+  phone?: string;
+}
+
+// B10: 1 council admin, 1 accountant, 1 cafeteria manager, 2 cashiers, 3 parents.
+const USERS: SeedUser[] = [
+  {
+    key: 'admin',
+    role: Role.ADMIN,
+    fullName: 'Nguyễn Thị Hội Đồng',
+    email: 'admin@schoolcoin.local',
+  },
+  {
+    key: 'accountant',
+    role: Role.ACCOUNTANT,
+    fullName: 'Trần Văn Kế Toán',
+    email: 'accountant@schoolcoin.local',
+  },
+  {
+    key: 'manager',
+    role: Role.CAFE_MANAGER,
+    fullName: 'Lê Thị Căn Tin',
+    email: 'manager@schoolcoin.local',
+  },
+  { key: 'cashier1', role: Role.CASHIER, fullName: 'Phạm Văn Thu', username: 'cashier1' },
+  { key: 'cashier2', role: Role.CASHIER, fullName: 'Hoàng Thị Ngân', username: 'cashier2' },
+  {
+    key: 'parentAn',
+    role: Role.PARENT,
+    fullName: 'Nguyễn Văn An',
+    email: 'parent.an@schoolcoin.local',
+    phone: '0901000001',
+  },
+  {
+    key: 'parentBinh',
+    role: Role.PARENT,
+    fullName: 'Trần Thị Bình',
+    email: 'parent.binh@schoolcoin.local',
+    phone: '0901000002',
+  },
+  {
+    key: 'parentCuong',
+    role: Role.PARENT,
+    fullName: 'Lê Văn Cường',
+    email: 'parent.cuong@schoolcoin.local',
+    phone: '0901000003',
+  },
 ];
 
-const PARENTS = [
-  { email: 'parent1@schoolcoin.local', fullName: 'Nguyễn Văn An' },
-  { email: 'parent2@schoolcoin.local', fullName: 'Trần Thị Bình' },
-  { email: 'parent3@schoolcoin.local', fullName: 'Lê Văn Cường' },
-];
+export type SeededUsers = Record<string, User>;
 
-export async function seedUsers(prisma: PrismaClient) {
-  const passwordHash = await hash(DEMO_PASSWORD, 10);
-  const upsert = (email: string, fullName: string, role: Role) =>
-    prisma.user.upsert({
-      where: { email },
+export async function seedUsers(prisma: PrismaClient): Promise<SeededUsers> {
+  const passwordHash = await hashSecret(DEMO_PASSWORD);
+  const users: SeededUsers = {};
+  for (const { key, ...u } of USERS) {
+    const where = u.email ? { email: u.email } : { username: u.username! };
+    users[key] = await prisma.user.upsert({
+      where,
       update: {},
-      create: { email, fullName, role, passwordHash },
+      create: { ...u, passwordHash },
     });
-
-  const staff: User[] = [];
-  for (const s of STAFF) staff.push(await upsert(s.email, s.fullName, s.role));
-  const parents: User[] = [];
-  for (const p of PARENTS) parents.push(await upsert(p.email, p.fullName, Role.PARENT));
-
-  return { staff, parents };
+  }
+  return users;
 }

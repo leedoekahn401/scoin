@@ -1,12 +1,13 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Prisma } from '@prisma/client';
 import type { Request } from 'express';
 import { Observable, tap } from 'rxjs';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AUDIT_KEY } from '../decorators/audit.decorator';
+import { AUDIT_KEY, type AuditMeta } from '../decorators/audit.decorator';
 import type { AuthUser } from '../decorators/current-user.decorator';
 
-/** Writes an AuditLog row after a successful @Audit route. */
+/** Writes an AuditLog row after a successful @Audit route (FR-AUD-01). */
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   constructor(
@@ -15,8 +16,8 @@ export class AuditInterceptor implements NestInterceptor {
   ) {}
 
   intercept(ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const action = this.reflector.get<string | undefined>(AUDIT_KEY, ctx.getHandler());
-    if (!action) return next.handle();
+    const meta = this.reflector.get<AuditMeta | undefined>(AUDIT_KEY, ctx.getHandler());
+    if (!meta) return next.handle();
 
     const req = ctx.switchToHttp().getRequest<Request & { user?: AuthUser }>();
     return next.handle().pipe(
@@ -24,13 +25,14 @@ export class AuditInterceptor implements NestInterceptor {
         const entityId =
           typeof result === 'object' && result !== null && 'id' in result
             ? String(result.id)
-            : undefined;
+            : String(req.params.id ?? '');
         await this.prisma.auditLog.create({
           data: {
-            action,
-            actorId: req.user?.id,
+            action: meta.action,
+            entity: meta.entity,
             entityId,
-            data: { params: req.params, body: req.body },
+            actorId: req.user?.id,
+            after: (result ?? undefined) as Prisma.InputJsonValue | undefined,
             ip: req.ip,
           },
         });

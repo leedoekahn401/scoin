@@ -5,6 +5,10 @@ WORKDIR /repo
 
 FROM base AS build
 ARG APP
+# NEXT_PUBLIC_* values are baked in at build time.
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ARG NEXT_PUBLIC_KIOSK_KEY=
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_PUBLIC_KIOSK_KEY=${NEXT_PUBLIC_KIOSK_KEY}
 COPY . .
 RUN pnpm install --frozen-lockfile
 ENV NEXT_OUTPUT=standalone

@@ -1,21 +1,28 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LedgerType, Prisma } from '@prisma/client';
+import type { LedgerRefType } from '@schoolcoin/types';
+import { notImplemented } from '../../common/utils/todo';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LedgerService } from './ledger.service';
 
 export interface WalletMovement {
-  walletId: string;
-  amountCredits: number;
+  studentId: string;
+  amountCredits: number; // always positive; credit() adds, debit() subtracts
   type: LedgerType;
-  createdById?: string;
-  orderId?: string;
-  topUpId?: string;
+  refType: LedgerRefType;
+  refId: string;
+  actorId?: string;
   note?: string;
 }
 
+export interface LockedWallet {
+  id: string;
+  balanceCredits: number;
+}
+
 /**
- * BE-2 — THE money core. Every balance change goes through credit()/debit(),
- * inside a transaction that locks the wallet row first (ADR 0002).
+ * BE-2 — THE money core (B5). Every balance change goes through credit()/debit(),
+ * inside a transaction that locks the wallet row first (ADR 0002, NFR-REL-01).
  */
 @Injectable()
 export class WalletService {
@@ -24,23 +31,25 @@ export class WalletService {
     private readonly ledger: LedgerService,
   ) {}
 
-  /** SELECT ... FOR UPDATE on the wallet row; call first inside a transaction. */
-  async lockWallet(tx: Prisma.TransactionClient, walletId: string) {
-    const [wallet] = await tx.$queryRaw<{ id: string; balance_credits: number; locked: boolean }[]>`
-      SELECT id, balance_credits, locked FROM wallets WHERE id = ${walletId} FOR UPDATE`;
+  /** SELECT ... FOR UPDATE on the student's wallet; call first inside a transaction. */
+  async lockWallet(tx: Prisma.TransactionClient, studentId: string): Promise<LockedWallet> {
+    const [wallet] = await tx.$queryRaw<LockedWallet[]>`
+      SELECT id, "balanceCredits" FROM wallets WHERE "studentId" = ${studentId} FOR UPDATE`;
     return wallet;
   }
 
+  /** Adds credits: TOPUP_SEPAY, TOPUP_CASH, VOID_REVERSAL, positive ADJUSTMENT. */
   async credit(_tx: Prisma.TransactionClient, _movement: WalletMovement) {
-    throw new NotImplementedException();
+    notImplemented('FR-WAL-02');
   }
 
+  /** Removes credits: PURCHASE, REFUND, negative ADJUSTMENT. Throws INSUFFICIENT_BALANCE. */
   async debit(_tx: Prisma.TransactionClient, _movement: WalletMovement) {
-    throw new NotImplementedException();
+    notImplemented('FR-WAL-03');
   }
 
-  /** Credits spent since the start of today in Asia/Ho_Chi_Minh. */
-  async todaySpent(_walletId: string): Promise<number> {
-    throw new NotImplementedException();
+  /** BR-04: today's purchases minus reversals of today's purchases, VN calendar day. */
+  async todaySpent(_tx: Prisma.TransactionClient, _walletId: string): Promise<number> {
+    notImplemented('BR-04');
   }
 }

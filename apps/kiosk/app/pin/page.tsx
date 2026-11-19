@@ -1,5 +1,5 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="Enter your PIN" />;
+  return <Placeholder title="Nhập mã PIN" />;
 }

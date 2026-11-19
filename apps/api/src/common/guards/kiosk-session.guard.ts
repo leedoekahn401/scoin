@@ -18,7 +18,12 @@ export class KioskSessionGuard implements CanActivate {
     const session = await this.prisma.kioskSession.findUnique({
       where: { tokenHash: sha256(token) },
     });
-    if (!session || session.deviceId !== req.kioskDeviceId || session.expiresAt < new Date()) {
+    if (
+      !session ||
+      session.endedAt ||
+      session.deviceId !== req.kioskDeviceId ||
+      session.expiresAt < new Date()
+    ) {
       throw new UnauthorizedException('Kiosk session expired');
     }
 

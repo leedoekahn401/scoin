@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  Length,
+  Matches,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -33,12 +33,15 @@ export class CreateOrderDto {
   @ArrayMinSize(1)
   items: OrderLineDto[];
 
-  @ApiProperty({ required: false, description: 'Required above the PIN threshold' })
+  @ApiProperty({
+    required: false,
+    description: 'Required when the total exceeds the PIN threshold',
+  })
   @IsOptional()
-  @Length(4, 6)
+  @Matches(/^\d{4}$/)
   pin?: string;
 
-  @ApiProperty({ description: 'One per checkout; retries reuse it' })
+  @ApiProperty({ description: 'One per checkout; retries reuse it (NFR-REL-02)' })
   @IsUUID()
   idempotencyKey: string;
 }

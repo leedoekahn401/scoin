@@ -17,6 +17,8 @@ services:
     env_file: .env.staging
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/schoolcoin
+      UPLOAD_DIR: /data/uploads
+    volumes: [uploads:/data/uploads]
     depends_on: [postgres]
 
   pos:
@@ -35,7 +37,7 @@ services:
   caddy:
     image: caddy:2
     restart: unless-stopped
-    ports: ["80:80", "443:443"]
+    ports: ['80:80', '443:443']
     environment:
       DOMAIN: ${DOMAIN}
     volumes:
@@ -45,4 +47,5 @@ services:
 
 volumes:
   pgdata:
+  uploads:
   caddy_data:

@@ -2,9 +2,10 @@ const REQUIRED = [
   'DATABASE_URL',
   'JWT_ACCESS_SECRET',
   'JWT_REFRESH_SECRET',
-  'SEPAY_API_KEY',
-  'SEPAY_BANK_ACCOUNT',
-  'SEPAY_BANK_CODE',
+  'SEPAY_WEBHOOK_KEY',
+  'SCHOOL_BANK_NAME',
+  'SCHOOL_BANK_ACCOUNT',
+  'SCHOOL_BANK_HOLDER',
 ] as const;
 
 /** Fails fast at boot if a required env var is missing. */

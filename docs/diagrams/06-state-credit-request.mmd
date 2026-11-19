@@ -1,0 +1,10 @@
+stateDiagram-v2
+  [*] --> PENDING: student sends at kiosk
+  PENDING --> APPROVED: a parent approves
+  PENDING --> DECLINED: a parent declines
+  PENDING --> EXPIRED: 7 days pass
+  APPROVED --> PAID: resulting top-up paid
+  APPROVED --> EXPIRED: top-up never paid within 7 days
+  DECLINED --> [*]
+  PAID --> [*]
+  EXPIRED --> [*]

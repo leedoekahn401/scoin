@@ -1,5 +1,10 @@
 import { Placeholder } from '@/components/placeholder';
 
 export default function Page() {
-  return <Placeholder title="My balance" note="Balance, today, last 10, request status" />;
+  return (
+    <Placeholder
+      title="Số dư của em"
+      note="Số dư, chi tiêu hôm nay, 10 giao dịch gần nhất, trạng thái yêu cầu (FR-KIO-02)"
+    />
+  );
 }

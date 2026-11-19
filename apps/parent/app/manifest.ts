@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'SchoolCoin',
     short_name: 'SchoolCoin',
-    description: 'Top up and follow your child canteen spending',
+    description: 'Nạp tiền và theo dõi chi tiêu ở căn tin của con',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

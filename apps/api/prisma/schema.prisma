@@ -1,5 +1,8 @@
-// SchoolCoin data model. Money is always integer credits (1 credit = 1,000 VND).
+// SchoolCoin data model (SRS Part B, section B4).
+// Money columns are integer credits (1 credit = 1,000 VND) unless the name ends in Vnd.
 // Times are stored in UTC; "today" is computed in Asia/Ho_Chi_Minh (src/common/utils/vn-day.ts).
+// Tables are snake_case; columns keep Prisma's camelCase, so quote them in raw SQL
+// (e.g. SELECT "balanceCredits" FROM wallets ... FOR UPDATE).
 
 generator client {
   provider = "prisma-client-js"
@@ -11,11 +14,17 @@ datasource db {
 }
 
 enum Role {
-  ADMIN
-  ACCOUNTANT
-  MANAGER
-  CASHIER
   PARENT
+  CASHIER
+  CAFE_MANAGER
+  ACCOUNTANT
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  LOCKED
+  DEACTIVATED
 }
 
 enum CardStatus {
@@ -25,31 +34,31 @@ enum CardStatus {
 }
 
 enum LedgerType {
-  TOPUP
-  CASH_TOPUP
+  TOPUP_SEPAY
+  TOPUP_CASH
   PURCHASE
-  VOID
+  VOID_REVERSAL
   REFUND
   ADJUSTMENT
-}
-
-enum OrderStatus {
-  PAID
-  VOIDED
 }
 
 enum TopUpStatus {
   PENDING
   PAID
   EXPIRED
-  REVIEW
+  CANCELLED
 }
 
-enum SepayStatus {
+enum SepayTxStatus {
   MATCHED
   UNMATCHED
-  ASSIGNED
+  RESOLVED
   IGNORED
+}
+
+enum OrderStatus {
+  COMPLETED
+  VOIDED
 }
 
 enum RequestStatus {
@@ -57,28 +66,45 @@ enum RequestStatus {
   APPROVED
   DECLINED
   EXPIRED
+  PAID
 }
+
+// ---------------------------------------------------------------- people
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  fullName     String
-  phone        String?
+  id           String     @id @default(uuid())
   role         Role
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  email        String?    @unique // null for cashiers
+  username     String?    @unique // cashiers
+  phone        String?
+  fullName     String
+  passwordHash String
+  status       UserStatus @default(ACTIVE)
+  failedLogins Int        @default(0)
+  lockedUntil  DateTime?
+  emailPrefs   Json? // per-notification-type email on/off (FR-NOT-04)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  refreshTokens  RefreshToken[]
-  familyLinks    FamilyLink[]
-  topUps         TopUp[]
-  notifications  Notification[]
-  auditLogs      AuditLog[]
-  ordersAsCashier Order[]       @relation("cashier")
-  emailOptOut    Boolean        @default(false)
+  children        ParentStudent[]
+  invitesUsed     InviteCode[]         @relation("inviteUsedBy")
+  cardsIssued     Card[]               @relation("cardIssuedBy")
+  ordersRungUp    Order[]              @relation("orderCashier")
+  ordersVoided    Order[]              @relation("orderVoidedBy")
+  topUps          TopUp[]
+  requestsDecided CreditRequest[]      @relation("requestDecidedBy")
+  sepayResolved   SepayTransaction[]   @relation("sepayResolvedBy")
+  refunds         Refund[]
+  ledgerEntries   LedgerEntry[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  refreshTokens   RefreshToken[]
+  passwordResets  PasswordResetToken[]
+
+  @@map("users")
 }
 
+/// Refresh tokens are stored hashed so a database leak cannot be replayed.
 model RefreshToken {
   id        String    @id @default(uuid())
   userId    String
@@ -89,100 +115,213 @@ model RefreshToken {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("refresh_tokens")
+}
+
+/// FR-AUTH-03: emailed reset link, valid 30 minutes, single use.
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }
 
 model Student {
-  id           String   @id @default(uuid())
-  studentCode  String   @unique
-  fullName     String
-  className    String
-  photoUrl     String?
-  pinHash      String?
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String    @id @default(uuid())
+  studentCode         String    @unique
+  fullName            String
+  className           String
+  photoUrl            String?
+  pinHash             String?
+  pinFailedCount      Int       @default(0)
+  pinLockedUntil      DateTime?
+  dailyLimitCredits   Int? // null = no limit
+  lowBalanceThreshold Int? // null = no alert
+  lowBalanceAlerted   Boolean   @default(false)
+  active              Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  wallet       Wallet?
-  cards        Card[]
-  familyLinks  FamilyLink[]
-  inviteCodes  InviteCode[]
-  orders       Order[]
-  topUps       TopUp[]
-  requests     CreditRequest[]
+  wallet        Wallet?
+  parents       ParentStudent[]
+  inviteCodes   InviteCode[]
+  cards         Card[]
+  orders        Order[]
+  topUps        TopUp[]
+  requests      CreditRequest[]
+  refunds       Refund[]
+  kioskSessions KioskSession[]
+
+  @@index([className])
+  @@map("students")
 }
 
-model Card {
-  id        String     @id @default(uuid())
-  code      String     @unique
-  studentId String
-  status    CardStatus @default(ACTIVE)
-  issuedAt  DateTime   @default(now())
-  lockedAt  DateTime?
-  student   Student    @relation(fields: [studentId], references: [id])
-
-  @@index([studentId])
-}
-
-model FamilyLink {
+model ParentStudent {
   parentId  String
   studentId String
-  createdAt DateTime @default(now())
+  linkedAt  DateTime @default(now())
   parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
   student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@id([parentId, studentId])
+  @@index([studentId])
+  @@map("parent_students")
 }
 
 model InviteCode {
-  id        String    @id @default(uuid())
-  code      String    @unique
+  code      String    @id
   studentId String
   expiresAt DateTime
+  usedById  String?
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  usedBy    User?     @relation("inviteUsedBy", fields: [usedById], references: [id])
+
+  @@index([studentId])
+  @@map("invite_codes")
 }
+
+/// BR-12: at most one ACTIVE card per student (enforced by a partial unique index in the migration).
+model Card {
+  id         String     @id @default(uuid())
+  studentId  String
+  code       String     @unique // random, >= 64 bits, unrelated to studentCode (NFR-SEC-05)
+  status     CardStatus @default(ACTIVE)
+  issuedAt   DateTime   @default(now())
+  issuedById String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  student    Student    @relation(fields: [studentId], references: [id])
+  issuedBy   User       @relation("cardIssuedBy", fields: [issuedById], references: [id])
+  orders     Order[]
+
+  @@index([studentId])
+  @@map("cards")
+}
+
+// ---------------------------------------------------------------- money
 
 /// Balance is a cached sum of the ledger, updated in the same transaction
 /// under SELECT ... FOR UPDATE (docs/adr/0002-ledger-with-row-locking.md).
-/// A CHECK constraint in the migration keeps balance_credits >= 0.
+/// The migration adds CHECK ("balanceCredits" >= 0).
 model Wallet {
-  id                  String   @id @default(uuid())
-  studentId           String   @unique
-  balanceCredits      Int      @default(0) @map("balance_credits")
-  dailyLimitCredits   Int?     @map("daily_limit_credits")
-  lowBalanceThreshold Int?     @map("low_balance_threshold")
-  locked              Boolean  @default(false)
-  updatedAt           DateTime @updatedAt
-  student             Student  @relation(fields: [studentId], references: [id])
-  entries             LedgerEntry[]
+  id             String        @id @default(uuid())
+  studentId      String        @unique
+  balanceCredits Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  student        Student       @relation(fields: [studentId], references: [id])
+  entries        LedgerEntry[]
 
   @@map("wallets")
 }
 
-/// Append-only. Never updated or deleted.
+/// Append-only: never updated or deleted (FR-WAL-04).
 model LedgerEntry {
-  id             String     @id @default(uuid())
-  walletId       String
-  type           LedgerType
-  amountCredits  Int        @map("amount_credits") // signed: + credit, - debit
-  balanceAfter   Int        @map("balance_after")
-  orderId        String?
-  topUpId        String?
-  createdById    String?
-  note           String?
-  createdAt      DateTime   @default(now())
-  wallet         Wallet     @relation(fields: [walletId], references: [id])
+  id            BigInt     @id @default(autoincrement())
+  walletId      String
+  type          LedgerType
+  amountCredits Int // + credit, - debit
+  balanceAfter  Int
+  refType       String // ORDER | TOP_UP | SEPAY_TX | REFUND | ADJUSTMENT
+  refId         String
+  actorId       String? // null for webhook-driven entries
+  note          String?
+  createdAt     DateTime   @default(now())
+  wallet        Wallet     @relation(fields: [walletId], references: [id])
+  actor         User?      @relation(fields: [actorId], references: [id])
 
   @@index([walletId, createdAt])
+  @@index([refType, refId])
   @@map("ledger_entries")
 }
 
+model TopUp {
+  id              String            @id @default(uuid())
+  studentId       String
+  parentId        String
+  amountCredits   Int
+  amountVnd       Int // amountCredits * 1000
+  paymentCode     String            @unique // SC + 8 digits
+  status          TopUpStatus       @default(PENDING)
+  expiresAt       DateTime
+  paidAt          DateTime?
+  needsReview     Boolean           @default(false) // amount mismatch (BR-06)
+  creditRequestId String?           @unique
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  student         Student           @relation(fields: [studentId], references: [id])
+  parent          User              @relation(fields: [parentId], references: [id])
+  creditRequest   CreditRequest?    @relation(fields: [creditRequestId], references: [id])
+  sepay           SepayTransaction?
+
+  @@index([parentId, createdAt])
+  @@index([status, expiresAt])
+  @@map("top_ups")
+}
+
+/// One row per SePay transaction; SePay's id is the primary key, so retries dedup on insert.
+model SepayTransaction {
+  id                BigInt        @id // SePay's transaction id
+  gateway           String
+  transactionDate   DateTime
+  accountNumber     String
+  code              String?
+  content           String
+  transferType      String // "in" | "out"
+  transferAmountVnd Int
+  referenceCode     String?
+  rawPayload        Json
+  status            SepayTxStatus
+  topUpId           String?       @unique
+  creditedCredits   Int?
+  remainderVnd      Int?
+  resolvedById      String?
+  resolvedAt        DateTime?
+  resolutionNote    String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  topUp             TopUp?        @relation(fields: [topUpId], references: [id])
+  resolvedBy        User?         @relation("sepayResolvedBy", fields: [resolvedById], references: [id])
+
+  @@index([status, transactionDate])
+  @@map("sepay_transactions")
+}
+
+model Refund {
+  id            String   @id @default(uuid())
+  studentId     String
+  amountCredits Int
+  method        String // CASH | BANK_TRANSFER
+  note          String?
+  createdById   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  student       Student  @relation(fields: [studentId], references: [id])
+  createdBy     User     @relation(fields: [createdById], references: [id])
+
+  @@map("refunds")
+}
+
+// ---------------------------------------------------------------- cafeteria
+
 model MenuCategory {
   id        String     @id @default(uuid())
-  name      String     @unique
+  name      String
   sortOrder Int        @default(0)
+  archived  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   items     MenuItem[]
+
+  @@map("menu_categories")
 }
 
 model MenuItem {
@@ -191,69 +330,61 @@ model MenuItem {
   name         String
   priceCredits Int
   imageUrl     String?
-  soldOut      Boolean      @default(false)
-  active       Boolean      @default(true)
+  available    Boolean      @default(true)
+  soldOutDate  DateTime?    @db.Date // sold out for this VN calendar day only (FR-MENU-03)
+  archived     Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   category     MenuCategory @relation(fields: [categoryId], references: [id])
   orderItems   OrderItem[]
+
+  @@index([categoryId])
+  @@map("menu_items")
 }
 
 model Order {
   id             String      @id @default(uuid())
   studentId      String
+  cardId         String
   cashierId      String
   totalCredits   Int
-  status         OrderStatus @default(PAID)
-  idempotencyKey String      @unique
+  status         OrderStatus @default(COMPLETED)
+  pinVerified    Boolean
+  idempotencyKey String      @unique // NFR-REL-02
   voidedAt       DateTime?
+  voidedById     String?
   voidReason     String?
   createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   student        Student     @relation(fields: [studentId], references: [id])
-  cashier        User        @relation("cashier", fields: [cashierId], references: [id])
+  card           Card        @relation(fields: [cardId], references: [id])
+  cashier        User        @relation("orderCashier", fields: [cashierId], references: [id])
+  voidedBy       User?       @relation("orderVoidedBy", fields: [voidedById], references: [id])
   items          OrderItem[]
 
   @@index([studentId, createdAt])
+  @@index([cashierId, createdAt])
+  @@map("orders")
 }
 
+/// Name and price are copied at the time of sale (BR-13).
 model OrderItem {
-  id           String   @id @default(uuid())
-  orderId      String
-  menuItemId   String
-  quantity     Int
-  priceCredits Int
-  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItem     MenuItem @relation(fields: [menuItemId], references: [id])
+  id               String   @id @default(uuid())
+  orderId          String
+  menuItemId       String
+  nameSnapshot     String
+  unitPriceCredits Int
+  quantity         Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem         MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
 }
 
-model TopUp {
-  id            String      @id @default(uuid())
-  studentId     String
-  parentId      String?
-  paymentCode   String      @unique // SC + 8 digits, goes in the transfer note
-  amountCredits Int
-  amountVnd     Int
-  status        TopUpStatus @default(PENDING)
-  expiresAt     DateTime
-  paidAt        DateTime?
-  createdAt     DateTime    @default(now())
-  student       Student     @relation(fields: [studentId], references: [id])
-  parent        User?       @relation(fields: [parentId], references: [id])
-  sepay         SepayTransaction[]
-}
-
-/// One row per SePay webhook call; the SePay id is the dedup key.
-model SepayTransaction {
-  id              String      @id @default(uuid())
-  sepayId         Int         @unique
-  amountVnd       Int
-  content         String
-  referenceCode   String?
-  transactionDate DateTime
-  status          SepayStatus
-  topUpId         String?
-  raw             Json
-  createdAt       DateTime    @default(now())
-  topUp           TopUp?      @relation(fields: [topUpId], references: [id])
-}
+// ---------------------------------------------------------------- kiosk & requests
 
 model CreditRequest {
   id            String        @id @default(uuid())
@@ -263,46 +394,30 @@ model CreditRequest {
   status        RequestStatus @default(PENDING)
   decidedById   String?
   decidedAt     DateTime?
+  declineReason String?
   expiresAt     DateTime
   createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   student       Student       @relation(fields: [studentId], references: [id])
-}
+  decidedBy     User?         @relation("requestDecidedBy", fields: [decidedById], references: [id])
+  topUp         TopUp?
 
-model Notification {
-  id        String    @id @default(uuid())
-  userId    String
-  type      String
-  title     String
-  body      String
-  readAt    DateTime?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt])
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  actorId   String?
-  action    String
-  entity    String?
-  entityId  String?
-  data      Json?
-  ip        String?
-  createdAt DateTime @default(now())
-  actor     User?    @relation(fields: [actorId], references: [id])
-
-  @@index([createdAt])
+  @@index([studentId, createdAt])
+  @@index([status, expiresAt])
+  @@map("credit_requests")
 }
 
 model KioskDevice {
   id         String         @id @default(uuid())
   name       String
-  keyHash    String         @unique
+  keyHash    String         @unique // sha256 of the device key, shown once on registration
   active     Boolean        @default(true)
   lastSeenAt DateTime?
   createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
   sessions   KioskSession[]
+
+  @@map("kiosk_devices")
 }
 
 model KioskSession {
@@ -310,13 +425,57 @@ model KioskSession {
   deviceId  String
   studentId String
   tokenHash String      @unique
-  expiresAt DateTime
+  expiresAt DateTime // slides forward on activity (B7: 2 minutes after last activity)
+  endedAt   DateTime?
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   device    KioskDevice @relation(fields: [deviceId], references: [id])
+  student   Student     @relation(fields: [studentId], references: [id])
+
+  @@map("kiosk_sessions")
+}
+
+// ---------------------------------------------------------------- system
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String // TOPUP_PAID | LOW_BALANCE | NEW_REQUEST | CARD_LOCKED
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        BigInt   @id @default(autoincrement())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  before    Json?
+  after     Json?
+  ip        String?
+  createdAt DateTime @default(now())
+  actor     User?    @relation(fields: [actorId], references: [id])
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+  @@index([actorId, createdAt])
+  @@map("audit_logs")
 }
 
 model Setting {
   key       String   @id
   value     Json
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }

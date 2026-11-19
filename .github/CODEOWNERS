@@ -17,7 +17,7 @@
 # /apps/api/src/modules/kiosk/          BE-4
 # /apps/api/src/modules/requests/       BE-4
 # /apps/api/src/modules/notifications/  BE-4
-# /apps/api/src/modules/reports/        BE-4
+# /apps/api/src/modules/reports/        BE-4   (reconciliation: BE-3)
 # /apps/api/src/modules/settings/       BE-4
 # /apps/api/src/modules/jobs/           BE-4
 # /apps/api/prisma/                     BE-2

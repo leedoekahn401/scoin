@@ -1,0 +1,19 @@
+erDiagram
+  USER ||--o{ PARENT_STUDENT : "is parent in"
+  STUDENT ||--o{ PARENT_STUDENT : "has parents"
+  STUDENT ||--|| WALLET : owns
+  STUDENT ||--o{ CARD : has
+  WALLET ||--o{ LEDGER_ENTRY : records
+  STUDENT ||--o{ ORDER : places
+  USER ||--o{ ORDER : "rings up"
+  ORDER ||--|{ ORDER_ITEM : contains
+  MENU_ITEM ||--o{ ORDER_ITEM : "sold as"
+  MENU_CATEGORY ||--o{ MENU_ITEM : groups
+  STUDENT ||--o{ TOP_UP : receives
+  USER ||--o{ TOP_UP : starts
+  TOP_UP |o--o| SEPAY_TRANSACTION : "paid by"
+  STUDENT ||--o{ CREDIT_REQUEST : sends
+  CREDIT_REQUEST |o--o| TOP_UP : "leads to"
+  STUDENT ||--o{ INVITE_CODE : "linked by"
+  USER ||--o{ NOTIFICATION : receives
+  USER ||--o{ AUDIT_LOG : performs
