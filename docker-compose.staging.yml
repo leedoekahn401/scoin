@@ -1,0 +1,48 @@
+# VPS staging stack: API + 4 apps + Postgres + Caddy (HTTPS + subdomains).
+# Usage: docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --build
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: schoolcoin
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/schoolcoin
+    depends_on: [postgres]
+
+  pos:
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: pos } }
+    restart: unless-stopped
+  parent:
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: parent } }
+    restart: unless-stopped
+  kiosk:
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: kiosk } }
+    restart: unless-stopped
+  admin:
+    build: { context: ., dockerfile: infra/docker/next.Dockerfile, args: { APP: admin } }
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [api, pos, parent, kiosk, admin]
+
+volumes:
+  pgdata:
+  caddy_data:

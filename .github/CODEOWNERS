@@ -1,0 +1,29 @@
+# Folder -> owner. GitHub requests a review from the owner on every PR touching the path.
+# Replace the placeholders with real GitHub usernames or teams (e.g. @org/team) and uncomment.
+#
+# /apps/api/src/modules/auth/           BE-1
+# /apps/api/src/modules/users/          BE-1
+# /apps/api/src/modules/families/       BE-1
+# /apps/api/src/modules/audit/          BE-1
+# /apps/api/src/modules/students/       BE-2
+# /apps/api/src/modules/cards/          BE-2
+# /apps/api/src/modules/wallet/         BE-2
+# /apps/api/src/modules/pos/            BE-2
+# /apps/api/src/modules/controls/       BE-2
+# /apps/api/src/modules/topups/         BE-3
+# /apps/api/src/modules/sepay/          BE-3
+# /apps/api/src/modules/finance/        BE-3
+# /apps/api/src/modules/menu/           BE-4
+# /apps/api/src/modules/kiosk/          BE-4
+# /apps/api/src/modules/requests/       BE-4
+# /apps/api/src/modules/notifications/  BE-4
+# /apps/api/src/modules/reports/        BE-4
+# /apps/api/src/modules/settings/       BE-4
+# /apps/api/src/modules/jobs/           BE-4
+# /apps/api/prisma/                     BE-2
+# /apps/pos/                            FE-1
+# /apps/kiosk/                          FE-1
+# /packages/ui/                         FE-1
+# /packages/api-client/                 FE-1
+# /apps/parent/                         FE-2
+# /apps/admin/                          FE-2

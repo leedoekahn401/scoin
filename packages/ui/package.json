@@ -1,0 +1,26 @@
+{
+  "name": "@schoolcoin/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./tailwind.preset": "./tailwind.preset.mjs"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@schoolcoin/types": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@schoolcoin/config": "workspace:*",
+    "@types/react": "^19.0.2",
+    "eslint": "^9.17.0",
+    "react": "^19.0.0",
+    "typescript": "^5.7.2"
+  }
+}

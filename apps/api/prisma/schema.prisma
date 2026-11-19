@@ -1,0 +1,322 @@
+// SchoolCoin data model. Money is always integer credits (1 credit = 1,000 VND).
+// Times are stored in UTC; "today" is computed in Asia/Ho_Chi_Minh (src/common/utils/vn-day.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ACCOUNTANT
+  MANAGER
+  CASHIER
+  PARENT
+}
+
+enum CardStatus {
+  ACTIVE
+  LOCKED
+  REPLACED
+}
+
+enum LedgerType {
+  TOPUP
+  CASH_TOPUP
+  PURCHASE
+  VOID
+  REFUND
+  ADJUSTMENT
+}
+
+enum OrderStatus {
+  PAID
+  VOIDED
+}
+
+enum TopUpStatus {
+  PENDING
+  PAID
+  EXPIRED
+  REVIEW
+}
+
+enum SepayStatus {
+  MATCHED
+  UNMATCHED
+  ASSIGNED
+  IGNORED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  EXPIRED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         Role
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  refreshTokens  RefreshToken[]
+  familyLinks    FamilyLink[]
+  topUps         TopUp[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  ordersAsCashier Order[]       @relation("cashier")
+  emailOptOut    Boolean        @default(false)
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Student {
+  id           String   @id @default(uuid())
+  studentCode  String   @unique
+  fullName     String
+  className    String
+  photoUrl     String?
+  pinHash      String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  wallet       Wallet?
+  cards        Card[]
+  familyLinks  FamilyLink[]
+  inviteCodes  InviteCode[]
+  orders       Order[]
+  topUps       TopUp[]
+  requests     CreditRequest[]
+}
+
+model Card {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  studentId String
+  status    CardStatus @default(ACTIVE)
+  issuedAt  DateTime   @default(now())
+  lockedAt  DateTime?
+  student   Student    @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+}
+
+model FamilyLink {
+  parentId  String
+  studentId String
+  createdAt DateTime @default(now())
+  parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, studentId])
+}
+
+model InviteCode {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  studentId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+/// Balance is a cached sum of the ledger, updated in the same transaction
+/// under SELECT ... FOR UPDATE (docs/adr/0002-ledger-with-row-locking.md).
+/// A CHECK constraint in the migration keeps balance_credits >= 0.
+model Wallet {
+  id                  String   @id @default(uuid())
+  studentId           String   @unique
+  balanceCredits      Int      @default(0) @map("balance_credits")
+  dailyLimitCredits   Int?     @map("daily_limit_credits")
+  lowBalanceThreshold Int?     @map("low_balance_threshold")
+  locked              Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+  student             Student  @relation(fields: [studentId], references: [id])
+  entries             LedgerEntry[]
+
+  @@map("wallets")
+}
+
+/// Append-only. Never updated or deleted.
+model LedgerEntry {
+  id             String     @id @default(uuid())
+  walletId       String
+  type           LedgerType
+  amountCredits  Int        @map("amount_credits") // signed: + credit, - debit
+  balanceAfter   Int        @map("balance_after")
+  orderId        String?
+  topUpId        String?
+  createdById    String?
+  note           String?
+  createdAt      DateTime   @default(now())
+  wallet         Wallet     @relation(fields: [walletId], references: [id])
+
+  @@index([walletId, createdAt])
+  @@map("ledger_entries")
+}
+
+model MenuCategory {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id           String       @id @default(uuid())
+  categoryId   String
+  name         String
+  priceCredits Int
+  imageUrl     String?
+  soldOut      Boolean      @default(false)
+  active       Boolean      @default(true)
+  category     MenuCategory @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  studentId      String
+  cashierId      String
+  totalCredits   Int
+  status         OrderStatus @default(PAID)
+  idempotencyKey String      @unique
+  voidedAt       DateTime?
+  voidReason     String?
+  createdAt      DateTime    @default(now())
+  student        Student     @relation(fields: [studentId], references: [id])
+  cashier        User        @relation("cashier", fields: [cashierId], references: [id])
+  items          OrderItem[]
+
+  @@index([studentId, createdAt])
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  menuItemId   String
+  quantity     Int
+  priceCredits Int
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model TopUp {
+  id            String      @id @default(uuid())
+  studentId     String
+  parentId      String?
+  paymentCode   String      @unique // SC + 8 digits, goes in the transfer note
+  amountCredits Int
+  amountVnd     Int
+  status        TopUpStatus @default(PENDING)
+  expiresAt     DateTime
+  paidAt        DateTime?
+  createdAt     DateTime    @default(now())
+  student       Student     @relation(fields: [studentId], references: [id])
+  parent        User?       @relation(fields: [parentId], references: [id])
+  sepay         SepayTransaction[]
+}
+
+/// One row per SePay webhook call; the SePay id is the dedup key.
+model SepayTransaction {
+  id              String      @id @default(uuid())
+  sepayId         Int         @unique
+  amountVnd       Int
+  content         String
+  referenceCode   String?
+  transactionDate DateTime
+  status          SepayStatus
+  topUpId         String?
+  raw             Json
+  createdAt       DateTime    @default(now())
+  topUp           TopUp?      @relation(fields: [topUpId], references: [id])
+}
+
+model CreditRequest {
+  id            String        @id @default(uuid())
+  studentId     String
+  amountCredits Int
+  note          String?
+  status        RequestStatus @default(PENDING)
+  decidedById   String?
+  decidedAt     DateTime?
+  expiresAt     DateTime
+  createdAt     DateTime      @default(now())
+  student       Student       @relation(fields: [studentId], references: [id])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String?
+  entityId  String?
+  data      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+  actor     User?    @relation(fields: [actorId], references: [id])
+
+  @@index([createdAt])
+}
+
+model KioskDevice {
+  id         String         @id @default(uuid())
+  name       String
+  keyHash    String         @unique
+  active     Boolean        @default(true)
+  lastSeenAt DateTime?
+  createdAt  DateTime       @default(now())
+  sessions   KioskSession[]
+}
+
+model KioskSession {
+  id        String      @id @default(uuid())
+  deviceId  String
+  studentId String
+  tokenHash String      @unique
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+  device    KioskDevice @relation(fields: [deviceId], references: [id])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

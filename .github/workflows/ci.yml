@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: schoolcoin
+          POSTGRES_PASSWORD: schoolcoin
+          POSTGRES_DB: schoolcoin_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U schoolcoin"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://schoolcoin:schoolcoin@localhost:5432/schoolcoin_test
+      JWT_ACCESS_SECRET: ci-access
+      JWT_REFRESH_SECRET: ci-refresh
+      SEPAY_API_KEY: ci-sepay
+      SEPAY_BANK_ACCOUNT: "0000000000"
+      SEPAY_BANK_CODE: MBBank
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm test:e2e
+      - run: pnpm build

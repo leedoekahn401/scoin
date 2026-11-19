@@ -1,0 +1,26 @@
+{
+  "name": "schoolcoin",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "pnpm --filter @schoolcoin/api test:e2e",
+    "db:migrate": "pnpm --filter @schoolcoin/api db:migrate",
+    "db:seed": "pnpm --filter @schoolcoin/api db:seed",
+    "db:reset": "pnpm --filter @schoolcoin/api db:reset",
+    "api:generate": "pnpm --filter @schoolcoin/api-client generate",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}

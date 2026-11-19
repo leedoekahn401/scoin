@@ -1,0 +1,27 @@
+# Local dev services. Start with: docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: schoolcoin
+      POSTGRES_PASSWORD: schoolcoin
+      POSTGRES_DB: schoolcoin
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432" # POSTGRES_PORT=5433 if a local Postgres already uses 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U schoolcoin"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # web inbox
+
+volumes:
+  pgdata:

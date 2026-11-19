@@ -1,0 +1,9 @@
+{
+  "extends": "@schoolcoin/config/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "incremental": false,
+    "plugins": []
+  },
+  "include": ["src"]
+}

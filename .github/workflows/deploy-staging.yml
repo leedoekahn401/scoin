@@ -1,0 +1,31 @@
+name: Deploy staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Migrate database
+        run: pnpm --filter @schoolcoin/api db:deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      # TODO: pick the hosting target (VPS via docker-compose.staging.yml, or a PaaS)
+      # and deploy the API + 4 apps here.
+      - name: Deploy
+        run: echo "Deployment target not configured yet"

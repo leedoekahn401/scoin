@@ -1,0 +1,20 @@
+# Only needed when deploying to a VPS. Caddy gets HTTPS certificates automatically.
+api.{$DOMAIN} {
+	reverse_proxy api:4000
+}
+
+pos.{$DOMAIN} {
+	reverse_proxy pos:3000
+}
+
+app.{$DOMAIN} {
+	reverse_proxy parent:3000
+}
+
+kiosk.{$DOMAIN} {
+	reverse_proxy kiosk:3000
+}
+
+admin.{$DOMAIN} {
+	reverse_proxy admin:3000
+}
