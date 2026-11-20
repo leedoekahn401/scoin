@@ -7,13 +7,14 @@ ask for more, and the school council runs it all from an admin page. **1 credit 
 - Spec: [SRS and technical design v1.0](docs/srs/schoolcoin-srs-v1.0.md)
 - Work: [backlog by sprint and owner](docs/backlog.md)
 
-| App          | Path          | Port                                           | Owner     |
-| ------------ | ------------- | ---------------------------------------------- | --------- |
-| API (NestJS) | `apps/api`    | 4000 — base path `/api/v1`, Swagger at `/docs` | BE-1…BE-4 |
-| POS          | `apps/pos`    | 3001                                           | FE-1      |
-| Parent PWA   | `apps/parent` | 3002                                           | FE-2      |
-| Kiosk        | `apps/kiosk`  | 3003                                           | FE-1      |
-| Admin        | `apps/admin`  | 3004                                           | FE-2      |
+| App            | Path            | Port                                              | Owner     |
+| -------------- | --------------- | ------------------------------------------------- | --------- |
+| API (NestJS)   | `apps/api`      | 4000 — base path `/api/v1`, Swagger at `/docs`    | BE-1…BE-4 |
+| Mock API (dev) | `apps/mock-api` | 4010 — base path `/api/v1`, reset at `/dev/reset` | FE-1…FE-2 |
+| POS            | `apps/pos`      | 3001                                              | FE-1      |
+| Parent PWA     | `apps/parent`   | 3002                                              | FE-2      |
+| Kiosk          | `apps/kiosk`    | 3003                                              | FE-1      |
+| Admin          | `apps/admin`    | 3004                                              | FE-2      |
 
 ## Setup in 5 commands
 
@@ -59,7 +60,43 @@ then `pnpm db:seed`.
 - **Data model:** `apps/api/prisma/schema.prisma` (SRS B4).
 - **Endpoints:** one controller per module in `apps/api/src/modules`, matching SRS B7. Unbuilt
   endpoints answer `501 NOT_IMPLEMENTED` with the requirement ID.
-- **UI kit:** `packages/ui` (shadcn/ui + Tailwind; tokens in `packages/config/tailwind.preset.mjs`).
+- **UI kit:** `packages/ui` (Warm Studio tokens and primitives in `packages/ui/src/styles.css`).
+
+## Front-end MVP
+
+The four Next.js 15 apps (`apps/pos`, `apps/parent`, `apps/kiosk`, `apps/admin`) share
+`packages/{types,api-client,mock-data,ui,config}` and run without the NestJS API by default.
+
+```bash
+pnpm dev:pos       # POS on http://localhost:3001
+pnpm dev:parent    # Parent PWA on http://localhost:3002
+pnpm dev:kiosk     # Kiosk on http://localhost:3003
+pnpm dev:admin     # Admin on http://localhost:3004
+pnpm dev:demo      # all four apps + one shared mock API on http://localhost:4010
+```
+
+`pnpm dev` gives each origin its own in-browser mock database. Use `pnpm dev:demo` for the SRS
+§B13 cross-app demo so requests at the kiosk reach the parent app. Reset it with
+`curl -X POST localhost:4010/api/v1/dev/reset` or by deleting `apps/mock-api/.data/`.
+
+Demo logins (password `demo1234`): POS `thungan1`, Parent `lan.nguyen@gmail.com`, Admin
+`admin@schoolcoin.vn`. At the kiosk, tap a demo card and enter PIN `1234`; the device key comes
+from Admin → Thiết bị kiosk.
+
+To plug in the real API, set `NEXT_PUBLIC_API_MODE=http`,
+`NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api/v1`, `NEXT_PUBLIC_DEMO_TOOLS=0` and
+`NEXT_PUBLIC_KIOSK_DEVICE_KEY=<key>` in each app's `.env.local`. The error-code spellings and
+extra demo routes are documented in [API notes](docs/frontend/API-NOTES.md); contributor rules
+are in [front-end conventions](docs/frontend/CONVENTIONS.md).
+
+```bash
+pnpm verify                                   # SRS §B13 walkthrough on the mock engine
+pnpm smoke:http                               # real HttpApi ↔ mock API (start it on :4010 first)
+pnpm test:ui                                  # one Playwright happy path per app
+node scripts/lint-copy.mjs apps/admin/src apps/pos/src apps/kiosk/src apps/parent/src packages/ui/src
+```
+
+Install browsers once with `pnpm exec playwright install chromium` if `pnpm test:ui` needs them.
 
 ## Conventions
 
@@ -74,6 +111,8 @@ then `pnpm db:seed`.
 
 ## Docs
 
+- [Front-end conventions](docs/frontend/CONVENTIONS.md)
+- [API notes for the backend team](docs/frontend/API-NOTES.md)
 - [Architecture decisions](docs/adr/)
 - [SePay setup](docs/sepay-setup.md)
 - [Demo script](docs/demo-script.md)
