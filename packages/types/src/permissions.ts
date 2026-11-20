@@ -29,6 +29,55 @@ export const PERMISSIONS = {
 
 export type Permission = keyof typeof PERMISSIONS;
 
-export function can(role: Role, permission: Permission): boolean {
+/** Front-end sidebar sections. Every capability maps onto a PERMISSIONS key. */
+export const Capability = {
+  POS_CHARGE: 'POS_CHARGE',
+  VOID_OWN_ORDER: 'VOID_OWN_ORDER',
+  VOID_ANY_ORDER: 'VOID_ANY_ORDER',
+  MANAGE_MENU: 'MANAGE_MENU',
+  MANAGE_CASHIERS: 'MANAGE_CASHIERS',
+  VIEW_SALES_REPORTS: 'VIEW_SALES_REPORTS',
+  MANAGE_MONEY: 'MANAGE_MONEY',
+  VIEW_FINANCE_REPORTS: 'VIEW_FINANCE_REPORTS',
+  MANAGE_STUDENTS: 'MANAGE_STUDENTS',
+  MANAGE_STAFF: 'MANAGE_STAFF',
+  MANAGE_SETTINGS: 'MANAGE_SETTINGS',
+  VIEW_AUDIT_LOG: 'VIEW_AUDIT_LOG',
+} as const;
+export type Capability = (typeof Capability)[keyof typeof Capability];
+
+const CAPABILITY_PERMISSION = {
+  POS_CHARGE: 'POS_CHARGE',
+  VOID_OWN_ORDER: 'VOID_OWN_ORDER',
+  VOID_ANY_ORDER: 'VOID_ANY_ORDER',
+  MANAGE_MENU: 'MENU_AND_CASHIERS',
+  MANAGE_CASHIERS: 'MENU_AND_CASHIERS',
+  VIEW_SALES_REPORTS: 'SALES_REPORTS',
+  MANAGE_MONEY: 'FINANCE',
+  VIEW_FINANCE_REPORTS: 'FINANCE_REPORTS',
+  MANAGE_STUDENTS: 'STUDENTS',
+  MANAGE_STAFF: 'SYSTEM',
+  MANAGE_SETTINGS: 'SYSTEM',
+  VIEW_AUDIT_LOG: 'SYSTEM',
+} as const satisfies Record<Capability, Permission>;
+
+/** Accepts an API permission key or a front-end capability. */
+export function can(
+  role: Role | null | undefined,
+  permissionOrCapability: Permission | Capability,
+): boolean {
+  if (!role) return false;
+  const permission = (
+    permissionOrCapability in PERMISSIONS
+      ? permissionOrCapability
+      : CAPABILITY_PERMISSION[permissionOrCapability as Capability]
+  ) as Permission;
   return (PERMISSIONS[permission] as readonly Role[]).includes(role);
+}
+
+export function capabilitiesOf(role: Role | null | undefined): readonly Capability[] {
+  if (!role) return [];
+  return (Object.keys(CAPABILITY_PERMISSION) as Capability[]).filter((capability) =>
+    can(role, capability),
+  );
 }
