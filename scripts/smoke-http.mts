@@ -16,7 +16,8 @@ const mem = () => {
   sessionStorage: mem(),
 };
 
-const base = 'http://localhost:4010/api/v1';
+const base = process.env.SMOKE_BASE_URL ?? 'http://localhost:4010/api/v1';
+console.log(`HTTP smoke → ${base}`);
 let failed = 0;
 const ok = (c: unknown, l: string) =>
   c ? console.log(`  ✓ ${l}`) : (failed++, console.error(`  ✗ ${l}`));

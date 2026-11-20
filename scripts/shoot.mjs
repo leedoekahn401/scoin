@@ -55,6 +55,8 @@ if (!app) {
   console.error(`usage: node scripts/shoot.mjs <${Object.keys(APPS).join('|')}> [extra routes…]`);
   process.exit(1);
 }
+const base = process.env.SHOOT_BASE_URL;
+const url = base ?? app.url;
 
 mkdirSync('screenshots', { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
@@ -76,7 +78,7 @@ page.on('console', (m) => {
 const slug = (route) => (route === '/' ? 'home' : route.replace(/^\//, '').replace(/[/?=&]/g, '_'));
 
 if (app.login) {
-  await page.goto(`${app.url}/login`, { waitUntil: 'networkidle' });
+  await page.goto(`${url}/login`, { waitUntil: 'networkidle' });
   await page.screenshot({ path: `screenshots/${name}-login.png`, fullPage: true });
   await page.locator('input[autocomplete="username"]').fill(app.login.identifier);
   await page.locator('input[type="password"]').first().fill(app.login.password);
@@ -86,7 +88,7 @@ if (app.login) {
 
 for (const route of [...app.routes, ...extraRoutes]) {
   try {
-    await page.goto(`${app.url}${route}`, { waitUntil: 'load', timeout: 30000 });
+    await page.goto(`${url}${route}`, { waitUntil: 'load', timeout: 30000 });
     await page.waitForTimeout(1500);
     await page.screenshot({ path: `screenshots/${name}-${slug(route)}.png`, fullPage: true });
     console.log(`✓ ${route}`);

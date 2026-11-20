@@ -1,5 +1,5 @@
 // Walks the SRS §B13 demo script against the mock engine and checks the
-// money invariants (FR-WAL-03, FR-WAL-05). Run: pnpm verify:engine
+// money invariants (FR-WAL-03, FR-WAL-05). Run: pnpm verify (or pnpm verify:engine)
 import { MockEngine } from '../packages/api-client/src/mock/engine';
 import { ApiError } from '../packages/api-client/src/errors';
 import { createSeed, DEMO_KIOSK_KEY } from '../packages/mock-data/src';

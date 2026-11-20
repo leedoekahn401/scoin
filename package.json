@@ -26,6 +26,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "tsx scripts/verify-engine.mts",
+    "verify:engine": "tsx scripts/verify-engine.mts",
     "smoke:http": "tsx scripts/smoke-http.mts",
     "shoot": "node scripts/shoot.mjs",
     "test:ui": "playwright test"
