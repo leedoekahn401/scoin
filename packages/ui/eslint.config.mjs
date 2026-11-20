@@ -1,1 +1,1 @@
-export { default } from '@schoolcoin/config/eslint/base';
+export { default } from '@schoolcoin/config/eslint/next';

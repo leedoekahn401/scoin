@@ -1,0 +1,464 @@
+/*
+ * SchoolCoin design tokens: "The Warm Studio", ported from ronansat-platform
+ * (docs/DESIGN.md there). Warm off-white canvas, white cards, 1px warm
+ * hairlines, low blurred shadows, ONE pastel-gold accent that does the work.
+ *
+ * Import order in every app's globals.css:
+ *   @import "tailwindcss";
+ *   @import "@schoolcoin/ui/styles.css";
+ *   @source "../../../packages/ui/src";
+ *
+ * Never hardcode hex, radii or shadows in components — use these tokens.
+ */
+
+:root {
+  color-scheme: only light;
+
+  /* Canvas + surfaces */
+  --bg-canvas: #faf9f7;
+  --bg-surface: #ffffff;
+  --bg-inset: #f4f2ee;
+
+  /* Ink */
+  --text-primary: #1c1917;
+  --text-muted: #78716c;
+  --text-faint: #a8a29e;
+
+  /* Hairlines */
+  --border-subtle: #e7e3dd;
+  --border-strong: #d8d2c8;
+
+  /* The one accent: pastel gold. Carries ink text, never white. */
+  --accent-brand: #e0b354;
+  --accent-brand-strong: #c99b3f;
+  --accent-brand-tint: #faf1de;
+  --accent-brand-deep: #8a6420;
+
+  /* Semantic states: small tags, icons and text only — never large fills. */
+  --state-info: #2f6feb;
+  --state-danger: #e0592f;
+  --state-success: #1f9d6b;
+  --state-warning: #c98a1b;
+  --state-warning-ink: #8f6110;
+  --state-info-tint: #e8effd;
+  --state-danger-tint: #fceee9;
+  --state-success-tint: #e6f5ee;
+  --state-warning-tint: #fbf1dc;
+
+  /* Pastel bank — colour CODING only (menu categories, avatars). */
+  --pastel-sky: #dbe8fb;
+  --pastel-mint: #d3efdf;
+  --pastel-lavender: #ece4f8;
+  --pastel-peach: #fbe1d3;
+  --pastel-butter: #fbf1cd;
+  --pastel-rose: #fbdae3;
+  --pastel-sage: #e3ecd8;
+  --pastel-aqua: #d3eef1;
+  --pastel-clay: #eee1d6;
+  --pastel-periwinkle: #dcdff7;
+
+  --shadow-color: rgb(28 25 23);
+  --scrim: rgb(28 25 23);
+  --scrollbar-thumb: #d6d0c7;
+  --scrollbar-thumb-hover: #b9b1a4;
+}
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-body), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  --color-paper-bg: var(--bg-canvas);
+  --color-surface-white: var(--bg-surface);
+  --color-surface-inset: var(--bg-inset);
+  --color-ink-fg: var(--text-primary);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-faint: var(--text-faint);
+  --color-border: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--accent-brand);
+  --color-brand-strong: var(--accent-brand-strong);
+  --color-brand-tint: var(--accent-brand-tint);
+  --color-brand-deep: var(--accent-brand-deep);
+  --color-info: var(--state-info);
+  --color-danger: var(--state-danger);
+  --color-success: var(--state-success);
+  --color-warning: var(--state-warning);
+  --color-warning-ink: var(--state-warning-ink);
+  --color-info-tint: var(--state-info-tint);
+  --color-danger-tint: var(--state-danger-tint);
+  --color-success-tint: var(--state-success-tint);
+  --color-warning-tint: var(--state-warning-tint);
+  --color-scrim: var(--scrim);
+
+  --color-pastel-sky: var(--pastel-sky);
+  --color-pastel-mint: var(--pastel-mint);
+  --color-pastel-lavender: var(--pastel-lavender);
+  --color-pastel-peach: var(--pastel-peach);
+  --color-pastel-butter: var(--pastel-butter);
+  --color-pastel-rose: var(--pastel-rose);
+  --color-pastel-sage: var(--pastel-sage);
+  --color-pastel-aqua: var(--pastel-aqua);
+  --color-pastel-clay: var(--pastel-clay);
+  --color-pastel-periwinkle: var(--pastel-periwinkle);
+
+  --ui-radius: 0.625rem;
+  --ui-radius-sm: 0.4375rem;
+  --ui-radius-lg: 0.875rem;
+  --ui-border: 1px;
+
+  --ui-shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--shadow-color) 5%, transparent);
+  --ui-shadow:
+    0 1px 2px -1px color-mix(in srgb, var(--shadow-color) 8%, transparent),
+    0 1px 3px 0 color-mix(in srgb, var(--shadow-color) 6%, transparent);
+  --ui-shadow-md:
+    0 2px 4px -2px color-mix(in srgb, var(--shadow-color) 8%, transparent),
+    0 4px 12px -2px color-mix(in srgb, var(--shadow-color) 10%, transparent);
+  --ui-shadow-lg:
+    0 8px 24px -6px color-mix(in srgb, var(--shadow-color) 14%, transparent),
+    0 2px 6px -2px color-mix(in srgb, var(--shadow-color) 8%, transparent);
+  --ui-scrollbar-size: 8px;
+
+  --app-bar-h: 3.5rem;
+  --sidebar-w: 15rem;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-paper-bg);
+    color: var(--color-ink-fg);
+    scrollbar-gutter: stable;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-paper-bg);
+    color: var(--color-ink-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 35%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* Numbers that change (balances, totals, timers) never jiggle. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scrollbar-thumb, #d6d0c7) transparent;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* Universal micro-interaction: colour + shadow only, never a transform. */
+  .workbook-press {
+    transition:
+      box-shadow 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .workbook-panel {
+    border: var(--ui-border) solid var(--color-border);
+    border-radius: var(--ui-radius);
+    background: var(--color-surface-white);
+    box-shadow: var(--ui-shadow);
+  }
+
+  .workbook-panel-muted {
+    border: var(--ui-border) solid var(--color-border);
+    border-radius: var(--ui-radius);
+    background: var(--color-paper-bg);
+  }
+
+  .workbook-input {
+    width: 100%;
+    border: var(--ui-border) solid var(--color-border-strong);
+    border-radius: var(--ui-radius);
+    background: var(--color-surface-white);
+    padding: 0.55rem 0.8rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-ink-fg);
+    outline: none;
+    transition:
+      box-shadow 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .workbook-input::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  .workbook-input:focus {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 18%, transparent);
+  }
+
+  .workbook-input[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+
+  .workbook-input[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 16%, transparent);
+  }
+
+  .workbook-input:disabled {
+    background: var(--color-paper-bg);
+    color: var(--color-ink-muted);
+  }
+
+  select.workbook-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.25rem;
+  }
+
+  .workbook-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .workbook-table thead th {
+    border-bottom: var(--ui-border) solid var(--color-border-strong);
+    background: var(--color-paper-bg);
+    color: var(--color-ink-muted);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    text-align: left;
+    padding: 0.6rem 1rem;
+    white-space: nowrap;
+  }
+
+  .workbook-table tbody td {
+    padding: 0.7rem 1rem;
+    vertical-align: middle;
+  }
+
+  .workbook-table tbody tr:not(:last-child) td {
+    border-bottom: var(--ui-border) solid var(--color-border);
+  }
+
+  .workbook-table tbody tr {
+    transition: background-color 150ms ease;
+  }
+
+  .workbook-table tbody tr:hover {
+    background: var(--color-paper-bg);
+  }
+
+  .workbook-modal-backdrop {
+    background: color-mix(in srgb, var(--scrim) 45%, transparent);
+    width: 100vw;
+  }
+
+  .workbook-modal-card {
+    background: var(--color-surface-white);
+  }
+
+  @media (min-width: 640px) {
+    .workbook-modal-card {
+      border: var(--ui-border) solid var(--color-border);
+      border-radius: var(--ui-radius-lg);
+      box-shadow: var(--ui-shadow-lg);
+    }
+  }
+
+  .workbook-scrollbar::-webkit-scrollbar {
+    width: var(--ui-scrollbar-size);
+    height: var(--ui-scrollbar-size);
+  }
+
+  .workbook-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+
+  .workbook-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: padding-box;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Pastel tint: set --pastel-tint inline, get a matching readable ink + edge. */
+  .pastel-tinted {
+    background: var(--pastel-tint);
+    --pastel-ink: oklch(from var(--pastel-tint) 0.42 0.09 h);
+    --pastel-edge: oklch(from var(--pastel-tint) 0.86 0.05 h);
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 0%,
+      color-mix(in srgb, var(--color-border) 45%, white) 50%,
+      var(--color-border) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+    border-radius: var(--ui-radius-sm);
+  }
+
+  @keyframes skeleton-sweep {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: -100% 0;
+    }
+  }
+
+  /* Menu pop for popovers/toasts: 180ms in on the standard ease. */
+  .menu-pop {
+    animation: menu-pop-in 180ms var(--ease-out-expo) both;
+  }
+
+  @keyframes menu-pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .fade-in {
+    animation: fade-in 220ms var(--ease-out-expo) both;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* PIN dot that fills when a digit is typed. */
+  .pin-dot {
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .shake {
+    animation: shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translateX(-1px);
+    }
+    20%,
+    80% {
+      transform: translateX(3px);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translateX(-6px);
+    }
+    40%,
+    60% {
+      transform: translateX(6px);
+    }
+  }
+
+  /* Live dot for "waiting for transfer" and kiosk idle. */
+  .live-dot {
+    position: relative;
+  }
+
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.25;
+    animation: live-ring 1.6s ease-out infinite;
+  }
+
+  @keyframes live-ring {
+    from {
+      transform: scale(0.6);
+      opacity: 0.35;
+    }
+    to {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  /* Kiosk idle: a gold line sweeping over the card silhouette. */
+  .scan-line {
+    animation: scan-sweep 2.6s var(--ease-out-expo) infinite alternate;
+  }
+
+  @keyframes scan-sweep {
+    from {
+      transform: translateY(0.75rem);
+    }
+    to {
+      transform: translateY(12.25rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scan-line,
+    .skeleton,
+    .live-dot::after,
+    .shake,
+    .menu-pop,
+    .fade-in {
+      animation: none;
+    }
+  }
+
+  @media print {
+    html,
+    body {
+      background: white;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+}
