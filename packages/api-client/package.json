@@ -8,10 +8,11 @@
   "exports": {
     ".": "./src/index.ts",
     "./react": "./src/react.tsx",
-    "./mock/engine": "./src/mock/engine.ts"
+    "./mock/engine": "./src/mock/engine.ts",
+    "./openapi": "./src/openapi/index.ts"
   },
   "scripts": {
-    "generate": "curl -sf http://localhost:4000/docs-json -o openapi.json && openapi-typescript openapi.json -o src/schema.d.ts",
+    "generate": "curl -sf http://localhost:4000/docs-json -o openapi.json && openapi-typescript openapi.json -o src/openapi/schema.d.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src"
   },

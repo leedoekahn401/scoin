@@ -87,7 +87,9 @@ import type {
  *   - `MockApi`  — the same business rules running in the browser on seed data.
  *
  * Method → endpoint mapping lives next to each method so the backend team can
- * read this file as the list of routes the front-ends call.
+ * read this file as the list of routes the front-ends call. The generated
+ * OpenAPI client (`@schoolcoin/api-client/openapi`) can later back `HttpApi`
+ * without changing this interface.
  */
 
 export interface PublicSettings {
