@@ -7,10 +7,11 @@ test('parent tops up a child and sees the credited balance', async ({ page }) =>
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
 
   await expect(page.getByRole('heading', { name: 'Chào Lan' })).toBeVisible();
-  await page.getByRole('link', { name: 'Nạp xu' }).first().click();
+  await page.getByRole('link', { name: 'Nạp xu', exact: true }).first().click();
 
-  await expect(page.getByRole('radio', { name: 'Nguyễn Minh Anh' })).toBeChecked();
-  await page.getByRole('button', { name: /50 xu/ }).click();
+  await expect(page.getByRole('heading', { name: 'Nạp xu', exact: true })).toBeVisible();
+  await expect(page.getByRole('radio', { name: /Nguyễn Minh Anh/ })).toBeChecked();
+  await page.getByRole('button', { name: /50xu/ }).click();
   await page.getByRole('button', { name: 'Tạo mã QR' }).click();
 
   await expect(page.getByText('Chờ thanh toán')).toBeVisible();
