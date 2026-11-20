@@ -1,5 +1,7 @@
 {
-  "extends": "@schoolcoin/config/tsconfig/nextjs.json",
-  "compilerOptions": { "incremental": false, "plugins": [] },
+  "extends": "@schoolcoin/config/tsconfig/library.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
   "include": ["src"]
 }

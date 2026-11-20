@@ -1,39 +1,40 @@
-import { API_PREFIX } from '@schoolcoin/types';
-import createFetchClient, { type Middleware } from 'openapi-fetch';
-import type { paths } from './schema';
+import type { SchoolCoinApi } from './contract';
+import { createHttpApi } from './http/client';
+import { createMockApi } from './mock/browser';
 
-export type { components, paths } from './schema';
+export * from './contract';
+export * from './errors';
+export { createHttpApi } from './http/client';
+export { createMockApi } from './mock/browser';
+
+export interface ApiConfig {
+  /** "mock" runs everything in the browser; "http" calls `baseUrl`. */
+  mode: 'mock' | 'http';
+  baseUrl?: string;
+  kioskKey?: string;
+}
 
 /**
- * Typed API client. `origin` is the API host (e.g. http://localhost:4000); generated paths
- * already include /api/v1. Sends cookies (the refresh token is httpOnly) and the access token,
- * and on a 401 tries one refresh before giving up.
+ * Reads NEXT_PUBLIC_API_MODE / NEXT_PUBLIC_API_BASE_URL. Next inlines
+ * `process.env.NEXT_PUBLIC_*` at build time only for literal property access,
+ * so each variable is read by name rather than through a helper.
  */
-export function createClient(origin: string) {
-  let accessToken: string | null = null;
-  const client = createFetchClient<paths>({ baseUrl: origin, credentials: 'include' });
-  const refreshUrl = `${origin}/${API_PREFIX}/auth/refresh`;
-
-  const auth: Middleware = {
-    onRequest({ request }) {
-      if (accessToken) request.headers.set('Authorization', `Bearer ${accessToken}`);
-      return request;
-    },
-    async onResponse({ request, response }) {
-      if (response.status !== 401 || request.url === refreshUrl) return response;
-      const refreshed = await fetch(refreshUrl, { method: 'POST', credentials: 'include' });
-      if (!refreshed.ok) return response;
-      accessToken = ((await refreshed.json()) as { accessToken: string }).accessToken;
-      const retry = request.clone();
-      retry.headers.set('Authorization', `Bearer ${accessToken}`);
-      return fetch(retry);
-    },
+export function apiConfigFromEnv(overrides: Partial<ApiConfig> = {}): ApiConfig {
+  const mode = (process.env.NEXT_PUBLIC_API_MODE === 'http' ? 'http' : 'mock') as ApiConfig['mode'];
+  return {
+    mode,
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api/v1',
+    kioskKey: process.env.NEXT_PUBLIC_KIOSK_DEVICE_KEY ?? 'demo-kiosk-key',
+    ...overrides,
   };
+}
 
-  client.use(auth);
-  return Object.assign(client, {
-    setAccessToken(token: string | null) {
-      accessToken = token;
-    },
-  });
+export function createApi(config: ApiConfig): SchoolCoinApi {
+  if (config.mode === 'http') {
+    return createHttpApi({
+      baseUrl: config.baseUrl ?? 'http://localhost:4000/api/v1',
+      kioskKey: config.kioskKey,
+    });
+  }
+  return createMockApi({ kioskKey: config.kioskKey });
 }
