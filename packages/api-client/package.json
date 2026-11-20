@@ -10,8 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "openapi-fetch": "^0.13.3",
-    "@schoolcoin/types": "workspace:*"
+    "@schoolcoin/mock-data": "workspace:*",
+    "@schoolcoin/types": "workspace:*",
+    "openapi-fetch": "^0.13.3"
   },
   "devDependencies": {
     "@schoolcoin/config": "workspace:*",
