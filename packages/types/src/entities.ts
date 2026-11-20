@@ -34,7 +34,7 @@ export interface UserProfile {
 export interface EmailPrefs {
   TOPUP_PAID: boolean;
   LOW_BALANCE: boolean;
-  CREDIT_REQUEST: boolean;
+  NEW_REQUEST: boolean;
   CARD_LOCKED: boolean;
 }
 

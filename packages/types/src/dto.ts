@@ -66,7 +66,7 @@ export interface UpdateMeDto {
   fullName?: string;
   phone?: string;
   emailPrefs?: Partial<
-    Record<'TOPUP_PAID' | 'LOW_BALANCE' | 'CREDIT_REQUEST' | 'CARD_LOCKED', boolean>
+    Record<'TOPUP_PAID' | 'LOW_BALANCE' | 'NEW_REQUEST' | 'CARD_LOCKED', boolean>
   >;
 }
 
