@@ -7,7 +7,14 @@
   },
   "scripts": {
     "dev": "turbo run dev",
+    "dev:pos": "turbo run dev --filter=@schoolcoin/pos",
+    "dev:parent": "turbo run dev --filter=@schoolcoin/parent",
+    "dev:kiosk": "turbo run dev --filter=@schoolcoin/kiosk",
+    "dev:admin": "turbo run dev --filter=@schoolcoin/admin",
+    "dev:demo": "node scripts/dev-demo.mjs",
+    "dev:mock-api": "turbo run dev --filter=@schoolcoin/mock-api",
     "build": "turbo run build",
+    "start": "turbo run start",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -17,11 +24,17 @@
     "db:reset": "pnpm --filter @schoolcoin/api db:reset",
     "api:generate": "pnpm --filter @schoolcoin/api-client generate",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "tsx scripts/verify-engine.mts",
+    "smoke:http": "tsx scripts/smoke-http.mts",
+    "shoot": "node scripts/shoot.mjs",
     "test:ui": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
+    "playwright": "1.65.1",
     "prettier": "^3.4.2",
+    "tsx": "^4.23.15",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"
   }

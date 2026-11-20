@@ -1,6 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NEXT_PUBLIC_API_MODE",
+    "NEXT_PUBLIC_API_BASE_URL",
+    "NEXT_PUBLIC_DEMO_TOOLS",
+    "NEXT_PUBLIC_KIOSK_DEVICE_KEY"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -19,8 +25,17 @@
     "typecheck": {
       "dependsOn": ["^build"]
     },
+    "@schoolcoin/admin#typecheck": { "dependsOn": ["^build", "build"] },
+    "@schoolcoin/pos#typecheck": { "dependsOn": ["^build", "build"] },
+    "@schoolcoin/parent#typecheck": { "dependsOn": ["^build", "build"] },
+    "@schoolcoin/kiosk#typecheck": { "dependsOn": ["^build", "build"] },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "start": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["build"]
     }
   }
 }
