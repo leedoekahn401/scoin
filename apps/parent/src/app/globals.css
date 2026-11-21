@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import '@schoolcoin/ui/styles.css';
+
+/* Let Tailwind see the class names used inside the shared UI package. */
+@source "../../../../packages/ui/src";

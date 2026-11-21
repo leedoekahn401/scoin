@@ -1,1 +1,3 @@
-export { default } from '@schoolcoin/config/eslint/base';
+import { nextConfig } from '@schoolcoin/config/eslint/next';
+
+export default nextConfig;

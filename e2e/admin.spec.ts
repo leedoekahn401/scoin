@@ -1,7 +1,20 @@
 import { expect, test } from '@playwright/test';
 
-// TODO(FE-2): sign in as admin → students list shows 5 students → print cards.
-test('admin sign-in page loads', async ({ page }) => {
+test('admin signs in and opens a student record', async ({ page }) => {
   await page.goto('/login');
-  await expect(page.getByRole('heading', { name: 'Đăng nhập quản trị' })).toBeVisible();
+  await page.getByLabel('Email').fill('admin@schoolcoin.vn');
+  await page.getByLabel('Mật khẩu').fill('demo1234');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Chào Thành' })).toBeVisible();
+  await page.getByRole('link', { name: 'Học sinh & ví' }).click();
+  await expect(page.getByRole('heading', { name: 'Học sinh' })).toBeVisible();
+
+  await page.getByPlaceholder('Tìm theo tên hoặc mã học sinh…').fill('Nguyễn Minh Anh');
+  const row = page.getByRole('row', { name: /Nguyễn Minh Anh/ });
+  await expect(row).toContainText('HS2026001');
+  await row.click();
+
+  await expect(page.getByRole('heading', { name: 'Nguyễn Minh Anh' })).toBeVisible();
+  await expect(page.getByText('HS2026001 · Lớp 6A1')).toBeVisible();
 });

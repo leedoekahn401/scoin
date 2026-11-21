@@ -1,3 +1,5 @@
+import type { ErrorCode } from './errors';
+
 export const ERROR_CODES = [
   // generic
   'VALIDATION_FAILED',
@@ -6,28 +8,42 @@ export const ERROR_CODES = [
   'NOT_FOUND',
   'CONFLICT',
   'RATE_LIMITED',
+  'NETWORK_ERROR',
   'NOT_IMPLEMENTED',
   'INTERNAL_ERROR',
   // auth & families
   'INVALID_CREDENTIALS',
   'ACCOUNT_LOCKED',
+  'ACCOUNT_DEACTIVATED',
+  'EMAIL_TAKEN',
+  'USERNAME_TAKEN',
   'INVITE_CODE_INVALID',
+  'INVITE_EXPIRED',
+  'INVITE_USED',
   'PARENT_LIMIT_REACHED',
+  'ALREADY_LINKED',
   'RESET_TOKEN_INVALID',
   // POS (B7)
+  'CARD_NOT_FOUND',
   'CARD_INACTIVE',
   'PIN_REQUIRED',
   'PIN_INVALID',
   'PIN_LOCKED',
+  'PIN_NOT_SET',
   'INSUFFICIENT_BALANCE',
   'DAILY_LIMIT_REACHED',
   'ITEM_UNAVAILABLE',
   'VOID_NOT_ALLOWED',
+  'ORDER_ALREADY_VOIDED',
   // top-ups & finance
   'TOPUP_AMOUNT_OUT_OF_RANGE',
   'TOPUP_NOT_PENDING',
   'PAYMENT_ALREADY_RESOLVED',
   'STUDENT_HAS_BALANCE',
+  'WALLET_INACTIVE',
+  'REFUND_EXCEEDS_BALANCE',
+  'ADJUSTMENT_NEGATIVE_BALANCE',
+  'STUDENT_CODE_TAKEN',
   // kiosk & requests
   'KIOSK_UNKNOWN',
   'KIOSK_SESSION_EXPIRED',
@@ -35,8 +51,6 @@ export const ERROR_CODES = [
   'NO_PARENT_LINKED',
   'REQUEST_CLOSED',
 ] as const;
-
-export type ErrorCode = (typeof ERROR_CODES)[number];
 
 /** Shape every API error response follows (B7). */
 export interface ApiErrorBody {

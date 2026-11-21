@@ -1,0 +1,10 @@
+{
+  "name": "SchoolCoin — Phụ huynh",
+  "short_name": "SchoolCoin",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#faf9f7",
+  "lang": "vi",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
