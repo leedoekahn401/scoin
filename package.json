@@ -16,6 +16,7 @@
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
+    "lint:design": "node scripts/lint-copy.mjs apps/admin/src apps/pos/src apps/kiosk/src apps/parent/src packages/ui/src",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "pnpm --filter @schoolcoin/api test:e2e",
