@@ -55,6 +55,8 @@ const save = useMutation({
 
 ## 4. Design rules: "The Warm Studio" (from ronansat-platform)
 
+> The full, authoritative design spec is **[DESIGN.md](./DESIGN.md)**. This section is the short version; if they disagree, DESIGN.md wins.
+
 Look at `apps/admin/src/app/(app)/page.tsx` (dashboard) and `packages/ui/src/components/*` before designing anything. A screen is mostly **paper + white + ink**, with **gold for the single primary action** or the active state.
 
 1. **Tokens only.** Colours: `bg-paper-bg`, `bg-surface-white`, `text-ink-fg`, `text-ink-muted`, `border-border`, `border-border-strong`, `bg-brand`, `bg-brand-tint`, `text-brand-deep`, `text-success|danger|info|warning`, `bg-*-tint`. Radii: `rounded-[var(--ui-radius)]`, `rounded-[var(--ui-radius-sm)]`, `rounded-[var(--ui-radius-lg)]`. Shadows: `shadow-[var(--ui-shadow)]` etc. **No raw hex, no `rounded-xl/2xl`, no `shadow-lg`, no `bg-blue-500`, no gradients.**
