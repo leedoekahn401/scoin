@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import type { PrismaClient } from '@prisma/client';
 import { notImplemented } from '../../common/utils/todo';
-import { PrismaService } from '../../prisma/prisma.service';
-import { SepayWebhookDto } from './dto/sepay-webhook.dto';
+import { prisma } from '../../prisma';
+import type { SepayWebhook } from './dto/sepay-webhook.dto';
 
 /** BE-3 — B5 "SePay webhook": dedup on id, match the code, credit the wallet. */
-@Injectable()
 export class SepayService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 
-  async handleWebhook(_payload: SepayWebhookDto): Promise<void> {
+  async handleWebhook(_payload: SepayWebhook): Promise<void> {
     notImplemented('FR-TOP-03');
   }
 }
+
+export const sepayService = new SepayService(prisma);

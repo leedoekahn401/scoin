@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../prisma';
 
 /** BE-2 — students, CSV import, PIN set/reset. */
-@Injectable()
 export class StudentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 }
+
+export const studentsService = new StudentsService(prisma);

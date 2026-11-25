@@ -24,7 +24,7 @@ import type {
  * The mock database. Shapes are the API's wire types plus the private
  * columns a real backend keeps server-side (passwords, PINs, counters). The
  * mock stores secrets in plain text because it is a demo running on seed
- * data; the NestJS API hashes them with Argon2id (NFR-SEC-02).
+ * data; the Express API hashes them with Argon2id (NFR-SEC-02).
  */
 
 export interface UserRecord extends UserProfile {

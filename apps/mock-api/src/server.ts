@@ -1,5 +1,5 @@
 /**
- * SchoolCoin mock API — a stand-in for the NestJS backend on :4010.
+ * SchoolCoin mock API — a stand-in for the Express backend on :4010.
  *
  * Serves the exact SRS §B7 routes under /api/v1 using the same MockEngine the
  * browser mock uses, and persists state to .data/db.json so all four apps

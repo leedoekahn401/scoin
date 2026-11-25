@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../prisma';
 
 /** BE-2 — issue, lock, replace, print data. */
-@Injectable()
 export class CardsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 }
+
+export const cardsService = new CardsService(prisma);

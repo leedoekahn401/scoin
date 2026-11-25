@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../prisma';
 
 /** BE-1 — login, refresh, logout, register-parent, reset. */
-@Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 }
+
+export const authService = new AuthService(prisma);

@@ -11,7 +11,23 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['HealthController_check'];
+    get: operations['health_check'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/audit-logs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_audit_search'];
     put?: never;
     post?: never;
     delete?: never;
@@ -29,7 +45,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_login'];
+    post: operations['auth_login'];
     delete?: never;
     options?: never;
     head?: never;
@@ -45,7 +61,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_refresh'];
+    post: operations['auth_refresh'];
     delete?: never;
     options?: never;
     head?: never;
@@ -61,7 +77,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_logout'];
+    post: operations['auth_logout'];
     delete?: never;
     options?: never;
     head?: never;
@@ -77,7 +93,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_registerParent'];
+    post: operations['auth_registerParent'];
     delete?: never;
     options?: never;
     head?: never;
@@ -93,7 +109,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_forgotPassword'];
+    post: operations['auth_forgotPassword'];
     delete?: never;
     options?: never;
     head?: never;
@@ -109,7 +125,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['AuthController_resetPassword'];
+    post: operations['auth_resetPassword'];
     delete?: never;
     options?: never;
     head?: never;
@@ -123,216 +139,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['AuthController_me'];
+    get: operations['auth_me'];
     put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/users': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['UsersController_list'];
-    put?: never;
-    post: operations['UsersController_create'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/users/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: operations['UsersController_update'];
-    trace?: never;
-  };
-  '/api/v1/parent/children/link': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['FamiliesController_link'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/students/{id}/invites': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['FamiliesController_createInvite'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/students/{id}/parents/{parentId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: operations['FamiliesController_unlink'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/audit-logs': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['AuditController_search'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/children': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['StudentsController_myChildren'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/children/{studentId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['StudentsController_child'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/children/{studentId}/transactions': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['StudentsController_transactions'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/students': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['StudentsController_list'];
-    put?: never;
-    post: operations['StudentsController_create'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/students/import': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['StudentsController_import'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/students/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['StudentsController_get'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: operations['StudentsController_update'];
-    trace?: never;
-  };
-  '/api/v1/admin/students/{id}/pin': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: operations['StudentsController_setPin'];
     post?: never;
     delete?: never;
     options?: never;
@@ -349,7 +157,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['CardsController_lockByParent'];
+    post: operations['cards_lockByParent'];
     delete?: never;
     options?: never;
     head?: never;
@@ -365,7 +173,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['CardsController_issue'];
+    post: operations['cards_issue'];
     delete?: never;
     options?: never;
     head?: never;
@@ -381,7 +189,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['CardsController_lock'];
+    post: operations['cards_lock'];
     delete?: never;
     options?: never;
     head?: never;
@@ -395,73 +203,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['CardsController_print'];
+    get: operations['cards_print'];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/pos/menu': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['PosController_menu'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/pos/lookup': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['PosController_lookup'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/pos/orders': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['PosController_today'];
-    put?: never;
-    post: operations['PosController_charge'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/pos/orders/{id}/void': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['PosController_void'];
     delete?: never;
     options?: never;
     head?: never;
@@ -481,58 +225,10 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch: operations['ControlsController_update'];
+    patch: operations['parent_controls_update'];
     trace?: never;
   };
-  '/api/v1/parent/topups': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['TopupsController_recent'];
-    put?: never;
-    post: operations['TopupsController_create'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/topups/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['TopupsController_get'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/topups/{id}/events': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['TopupsController_events'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/topups/{id}/cancel': {
+  '/api/v1/parent/children/link': {
     parameters: {
       query?: never;
       header?: never;
@@ -541,14 +237,14 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['TopupsController_cancel'];
+    post: operations['families_link'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/v1/admin/topups/cash': {
+  '/api/v1/admin/students/{id}/invites': {
     parameters: {
       query?: never;
       header?: never;
@@ -557,72 +253,24 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['TopupsController_cash'];
+    post: operations['families_createInvite'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/v1/admin/topups/review': {
+  '/api/v1/admin/students/{id}/parents/{parentId}': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get: operations['TopupsController_review'];
+    get?: never;
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/sepay-transactions': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['SepayController_list'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/sepay-transactions/{id}/assign': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['SepayController_assign'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/sepay-transactions/{id}/ignore': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['SepayController_ignore'];
-    delete?: never;
+    delete: operations['families_unlink'];
     options?: never;
     head?: never;
     patch?: never;
@@ -637,7 +285,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['FinanceController_refund'];
+    post: operations['admin_finance_refund'];
     delete?: never;
     options?: never;
     head?: never;
@@ -653,8 +301,88 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['FinanceController_adjust'];
+    post: operations['admin_finance_adjust'];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/kiosk/sessions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['kiosk_signIn'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/kiosk/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['kiosk_me'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/kiosk/sessions/current': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations['kiosk_signOut'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/kiosk-devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['kiosk_devices'];
+    put?: never;
+    post: operations['kiosk_register'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/kiosk-devices/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations['kiosk_revoke'];
     options?: never;
     head?: never;
     patch?: never;
@@ -667,9 +395,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['MenuController_categories'];
+    get: operations['admin_menu_categories'];
     put?: never;
-    post: operations['MenuController_createCategory'];
+    post: operations['admin_menu_createCategory'];
     delete?: never;
     options?: never;
     head?: never;
@@ -689,7 +417,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch: operations['MenuController_updateCategory'];
+    patch: operations['admin_menu_updateCategory'];
     trace?: never;
   };
   '/api/v1/admin/menu/items': {
@@ -699,9 +427,9 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['MenuController_items'];
+    get: operations['admin_menu_items'];
     put?: never;
-    post: operations['MenuController_createItem'];
+    post: operations['admin_menu_createItem'];
     delete?: never;
     options?: never;
     head?: never;
@@ -721,7 +449,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch: operations['MenuController_updateItem'];
+    patch: operations['admin_menu_updateItem'];
     trace?: never;
   };
   '/api/v1/admin/menu/items/{id}/sold-out': {
@@ -733,151 +461,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['MenuController_soldOut'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/kiosk/sessions': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['KioskController_signIn'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/kiosk/me': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['KioskController_me'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/kiosk/sessions/current': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: operations['KioskController_signOut'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/kiosk-devices': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['KioskController_devices'];
-    put?: never;
-    post: operations['KioskController_register'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/admin/kiosk-devices/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: operations['KioskController_revoke'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/kiosk/requests': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['RequestsController_create'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/requests': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['RequestsController_list'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/requests/{id}/approve': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['RequestsController_approve'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/parent/requests/{id}/decline': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['RequestsController_decline'];
+    post: operations['admin_menu_soldOut'];
     delete?: never;
     options?: never;
     head?: never;
@@ -891,7 +475,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['NotificationsController_list'];
+    get: operations['notifications_list'];
     put?: never;
     post?: never;
     delete?: never;
@@ -913,7 +497,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch: operations['NotificationsController_markRead'];
+    patch: operations['notifications_markRead'];
     trace?: never;
   };
   '/api/v1/notifications/read-all': {
@@ -925,7 +509,71 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    post: operations['NotificationsController_markAllRead'];
+    post: operations['notifications_markAllRead'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/pos/menu': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['pos_menu'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/pos/lookup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['pos_lookup'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/pos/orders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['pos_today'];
+    put?: never;
+    post: operations['pos_charge'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/pos/orders/{id}/void': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['pos_void'];
     delete?: never;
     options?: never;
     head?: never;
@@ -939,7 +587,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['ReportsController_sales'];
+    get: operations['admin_reports_sales'];
     put?: never;
     post?: never;
     delete?: never;
@@ -955,7 +603,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['ReportsController_topups'];
+    get: operations['admin_reports_topups'];
     put?: never;
     post?: never;
     delete?: never;
@@ -971,7 +619,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['ReportsController_balances'];
+    get: operations['admin_reports_balances'];
     put?: never;
     post?: never;
     delete?: never;
@@ -987,7 +635,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['ReportsController_reconciliation'];
+    get: operations['admin_reports_reconciliation'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1003,9 +651,121 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['ReportsController_dashboard'];
+    get: operations['admin_reports_dashboard'];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/kiosk/requests': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['requests_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/requests': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['requests_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/requests/{id}/approve': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['requests_approve'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/requests/{id}/decline': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['requests_decline'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/sepay-transactions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['sepay_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/sepay-transactions/{id}/assign': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['sepay_assign'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/sepay-transactions/{id}/ignore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['sepay_ignore'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1019,8 +779,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get: operations['SettingsController_get'];
-    put: operations['SettingsController_update'];
+    get: operations['admin_settings_get'];
+    put: operations['admin_settings_update'];
     post?: never;
     delete?: never;
     options?: never;
@@ -1028,18 +788,257 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/parent/children': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['students_myChildren'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/children/{studentId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['students_child'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/children/{studentId}/transactions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['students_transactions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/students': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['students_list'];
+    put?: never;
+    post: operations['students_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/students/import': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['students_import'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/students/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['students_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['students_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/students/{id}/pin': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['students_setPin'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/topups': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['topups_recent'];
+    put?: never;
+    post: operations['topups_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/topups/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['topups_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/topups/{id}/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['topups_events'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/topups/{id}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['topups_cancel'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/topups/cash': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['topups_cash'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/topups/review': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['topups_review'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_users_list'];
+    put?: never;
+    post: operations['admin_users_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/users/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['admin_users_update'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    OrderLineDto: {
-      menuItemId: string;
-      quantity: number;
-    };
     CreateOrderDto: {
       /** @description Scanned card code */
       cardCode: string;
-      items: components['schemas']['OrderLineDto'][];
+      items: {
+        menuItemId: string;
+        quantity: number;
+      }[];
       /** @description Required when the total exceeds the PIN threshold */
       pin?: string;
       /** @description One per checkout; retries reuse it (NFR-REL-02) */
@@ -1054,7 +1053,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  HealthController_check: {
+  health_check: {
     parameters: {
       query?: never;
       header?: never;
@@ -1071,7 +1070,7 @@ export interface operations {
       };
     };
   };
-  AuthController_login: {
+  admin_audit_search: {
     parameters: {
       query?: never;
       header?: never;
@@ -1088,7 +1087,7 @@ export interface operations {
       };
     };
   };
-  AuthController_refresh: {
+  auth_login: {
     parameters: {
       query?: never;
       header?: never;
@@ -1105,7 +1104,24 @@ export interface operations {
       };
     };
   };
-  AuthController_logout: {
+  auth_refresh: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  auth_logout: {
     parameters: {
       query?: never;
       header?: never;
@@ -1122,7 +1138,7 @@ export interface operations {
       };
     };
   };
-  AuthController_registerParent: {
+  auth_registerParent: {
     parameters: {
       query?: never;
       header?: never;
@@ -1139,7 +1155,7 @@ export interface operations {
       };
     };
   };
-  AuthController_forgotPassword: {
+  auth_forgotPassword: {
     parameters: {
       query?: never;
       header?: never;
@@ -1156,7 +1172,7 @@ export interface operations {
       };
     };
   };
-  AuthController_resetPassword: {
+  auth_resetPassword: {
     parameters: {
       query?: never;
       header?: never;
@@ -1173,7 +1189,7 @@ export interface operations {
       };
     };
   };
-  AuthController_me: {
+  auth_me: {
     parameters: {
       query?: never;
       header?: never;
@@ -1190,7 +1206,64 @@ export interface operations {
       };
     };
   };
-  UsersController_list: {
+  cards_lockByParent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  cards_issue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  cards_lock: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  cards_print: {
     parameters: {
       query?: never;
       header?: never;
@@ -1207,7 +1280,26 @@ export interface operations {
       };
     };
   };
-  UsersController_create: {
+  parent_controls_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  families_link: {
     parameters: {
       query?: never;
       header?: never;
@@ -1224,11 +1316,33 @@ export interface operations {
       };
     };
   };
-  UsersController_update: {
+  families_createInvite: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  families_unlink: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        parentId: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -1241,7 +1355,7 @@ export interface operations {
       };
     };
   };
-  FamiliesController_link: {
+  admin_finance_refund: {
     parameters: {
       query?: never;
       header?: never;
@@ -1258,7 +1372,7 @@ export interface operations {
       };
     };
   };
-  FamiliesController_createInvite: {
+  admin_finance_adjust: {
     parameters: {
       query?: never;
       header?: never;
@@ -1275,109 +1389,7 @@ export interface operations {
       };
     };
   };
-  FamiliesController_unlink: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  AuditController_search: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_myChildren: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_child: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_transactions: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_list: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_create: {
+  kiosk_signIn: {
     parameters: {
       query?: never;
       header?: never;
@@ -1394,7 +1406,58 @@ export interface operations {
       };
     };
   };
-  StudentsController_import: {
+  kiosk_me: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  kiosk_signOut: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  kiosk_devices: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  kiosk_register: {
     parameters: {
       query?: never;
       header?: never;
@@ -1411,7 +1474,26 @@ export interface operations {
       };
     };
   };
-  StudentsController_get: {
+  kiosk_revoke: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_menu_categories: {
     parameters: {
       query?: never;
       header?: never;
@@ -1428,58 +1510,7 @@ export interface operations {
       };
     };
   };
-  StudentsController_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  StudentsController_setPin: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CardsController_lockByParent: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CardsController_issue: {
+  admin_menu_createCategory: {
     parameters: {
       query?: never;
       header?: never;
@@ -1496,7 +1527,26 @@ export interface operations {
       };
     };
   };
-  CardsController_lock: {
+  admin_menu_updateCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_menu_items: {
     parameters: {
       query?: never;
       header?: never;
@@ -1513,7 +1563,62 @@ export interface operations {
       };
     };
   };
-  CardsController_print: {
+  admin_menu_createItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_menu_updateItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_menu_soldOut: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_list: {
     parameters: {
       query?: never;
       header?: never;
@@ -1530,7 +1635,43 @@ export interface operations {
       };
     };
   };
-  PosController_menu: {
+  notifications_markRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  notifications_markAllRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  pos_menu: {
     parameters: {
       query?: never;
       header?: never;
@@ -1547,7 +1688,7 @@ export interface operations {
       };
     };
   };
-  PosController_lookup: {
+  pos_lookup: {
     parameters: {
       query?: never;
       header?: never;
@@ -1564,7 +1705,7 @@ export interface operations {
       };
     };
   };
-  PosController_today: {
+  pos_today: {
     parameters: {
       query?: never;
       header?: never;
@@ -1581,7 +1722,7 @@ export interface operations {
       };
     };
   };
-  PosController_charge: {
+  pos_charge: {
     parameters: {
       query?: never;
       header?: never;
@@ -1602,7 +1743,26 @@ export interface operations {
       };
     };
   };
-  PosController_void: {
+  pos_void: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_reports_sales: {
     parameters: {
       query?: never;
       header?: never;
@@ -1619,7 +1779,7 @@ export interface operations {
       };
     };
   };
-  ControlsController_update: {
+  admin_reports_topups: {
     parameters: {
       query?: never;
       header?: never;
@@ -1636,7 +1796,7 @@ export interface operations {
       };
     };
   };
-  TopupsController_recent: {
+  admin_reports_balances: {
     parameters: {
       query?: never;
       header?: never;
@@ -1653,7 +1813,41 @@ export interface operations {
       };
     };
   };
-  TopupsController_create: {
+  admin_reports_reconciliation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_reports_dashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  requests_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -1670,7 +1864,7 @@ export interface operations {
       };
     };
   };
-  TopupsController_get: {
+  requests_list: {
     parameters: {
       query?: never;
       header?: never;
@@ -1687,7 +1881,45 @@ export interface operations {
       };
     };
   };
-  TopupsController_events: {
+  requests_approve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  requests_decline: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sepay_list: {
     parameters: {
       query?: never;
       header?: never;
@@ -1704,7 +1936,45 @@ export interface operations {
       };
     };
   };
-  TopupsController_cancel: {
+  sepay_assign: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sepay_ignore: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_settings_get: {
     parameters: {
       query?: never;
       header?: never;
@@ -1721,7 +1991,96 @@ export interface operations {
       };
     };
   };
-  TopupsController_cash: {
+  admin_settings_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_myChildren: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_child: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_transactions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -1738,75 +2097,7 @@ export interface operations {
       };
     };
   };
-  TopupsController_review: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  SepayController_list: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  SepayController_assign: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  SepayController_ignore: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  FinanceController_refund: {
+  students_import: {
     parameters: {
       query?: never;
       header?: never;
@@ -1823,7 +2114,81 @@ export interface operations {
       };
     };
   };
-  FinanceController_adjust: {
+  students_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  students_setPin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  topups_recent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  topups_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -1840,11 +2205,13 @@ export interface operations {
       };
     };
   };
-  MenuController_categories: {
+  topups_get: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        id: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -1857,7 +2224,45 @@ export interface operations {
       };
     };
   };
-  MenuController_createCategory: {
+  topups_events: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  topups_cancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  topups_cash: {
     parameters: {
       query?: never;
       header?: never;
@@ -1874,7 +2279,7 @@ export interface operations {
       };
     };
   };
-  MenuController_updateCategory: {
+  topups_review: {
     parameters: {
       query?: never;
       header?: never;
@@ -1891,7 +2296,7 @@ export interface operations {
       };
     };
   };
-  MenuController_items: {
+  admin_users_list: {
     parameters: {
       query?: never;
       header?: never;
@@ -1908,7 +2313,7 @@ export interface operations {
       };
     };
   };
-  MenuController_createItem: {
+  admin_users_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -1925,368 +2330,13 @@ export interface operations {
       };
     };
   };
-  MenuController_updateItem: {
+  admin_users_update: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
+      path: {
+        id: string;
       };
-    };
-  };
-  MenuController_soldOut: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_signIn: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_me: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_signOut: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_devices: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_register: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  KioskController_revoke: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RequestsController_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RequestsController_list: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RequestsController_approve: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RequestsController_decline: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  NotificationsController_list: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  NotificationsController_markRead: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  NotificationsController_markAllRead: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ReportsController_sales: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ReportsController_topups: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ReportsController_balances: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ReportsController_reconciliation: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ReportsController_dashboard: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  SettingsController_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  SettingsController_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
       cookie?: never;
     };
     requestBody?: never;

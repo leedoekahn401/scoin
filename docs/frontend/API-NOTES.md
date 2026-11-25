@@ -1,12 +1,12 @@
 # API notes for the backend team
 
-The front-ends call the backend only through `packages/api-client/src/contract.ts`. Every method is annotated with its HTTP route. `packages/api-client/src/http/client.ts` is the exact fetch implementation, so matching the paths, bodies and the error envelope below means the apps work against NestJS without code changes.
+The front-ends call the backend only through `packages/api-client/src/contract.ts`. Every method is annotated with its HTTP route. `packages/api-client/src/http/client.ts` is the exact fetch implementation, so matching the paths, bodies and the error envelope below means the apps work against Express without code changes.
 
-`packages/api-client/src/mock/engine.ts` implements every business rule from the SRS (B5 money safety, BR-01…BR-14, PIN lockout, idempotency, webhook dedup, low-balance re-arm). Treat it as an executable reference for the NestJS services. `pnpm verify` runs the §B13 demo script against it.
+`packages/api-client/src/mock/engine.ts` implements every business rule from the SRS (B5 money safety, BR-01…BR-14, PIN lockout, idempotency, webhook dedup, low-balance re-arm). Treat it as an executable reference for the Express services. `pnpm verify` runs the §B13 demo script against it.
 
 ## Conventions the client relies on
 
-- Base URL `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:4000/api/v1` for the NestJS API). The bundled mock API runs on `http://localhost:4010/api/v1` and `pnpm dev:demo` points all apps at it. JSON in, JSON out. Credits are integers; `…Vnd` fields are VND.
+- Base URL `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:4000/api/v1` for the Express API). The bundled mock API runs on `http://localhost:4010/api/v1` and `pnpm dev:demo` points all apps at it. JSON in, JSON out. Credits are integers; `…Vnd` fields are VND.
 - Errors: non-2xx with `{ "error": { "code": ErrorCode, "message": string, "details"?: object } }`. The UI switches on `code` (see `packages/types/src/errors.ts`) and reads numbers from `details`. The TARGET API spelling is authoritative: `UNAUTHENTICATED`, `INTERNAL_ERROR`, `INVITE_CODE_INVALID`, `PARENT_LIMIT_REACHED`, `KIOSK_UNKNOWN`, `KIOSK_SESSION_EXPIRED`; notification type `NEW_REQUEST`. Codes that carry numbers:
   - `INSUFFICIENT_BALANCE {balance,total}`, `DAILY_LIMIT_REACHED {remainingToday,total,dailyLimit}`, `PIN_INVALID {attemptsLeft}`, `PIN_LOCKED {lockedUntil}`, `TOPUP_AMOUNT_OUT_OF_RANGE {min,max}`, `REFUND_EXCEEDS_BALANCE {balance}`, `STUDENT_HAS_BALANCE {balance}`, `ITEM_UNAVAILABLE {menuItemIds}`.
 - Auth: `POST /auth/login` returns `{ accessToken, expiresIn, user: Me }`. The client sends `Authorization: Bearer <accessToken>`. On 401 it calls `POST /auth/refresh` once (with `credentials: "include"`, so the refresh cookie is sent) and expects `{ accessToken }`.

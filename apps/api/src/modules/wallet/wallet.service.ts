@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { LedgerType, Prisma } from '@prisma/client';
+import { LedgerType, Prisma, type PrismaClient } from '@prisma/client';
 import type { LedgerRefType } from '@schoolcoin/types';
 import { notImplemented } from '../../common/utils/todo';
-import { PrismaService } from '../../prisma/prisma.service';
-import { LedgerService } from './ledger.service';
+import { prisma } from '../../prisma';
+import { LedgerService, ledgerService } from './ledger.service';
 
 export interface WalletMovement {
   studentId: string;
@@ -24,10 +23,9 @@ export interface LockedWallet {
  * BE-2 — THE money core (B5). Every balance change goes through credit()/debit(),
  * inside a transaction that locks the wallet row first (ADR 0002, NFR-REL-01).
  */
-@Injectable()
 export class WalletService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaClient,
     private readonly ledger: LedgerService,
   ) {}
 
@@ -53,3 +51,5 @@ export class WalletService {
     notImplemented('BR-04');
   }
 }
+
+export const walletService = new WalletService(prisma, ledgerService);
