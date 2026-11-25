@@ -33,6 +33,16 @@ enum CardStatus {
   REPLACED
 }
 
+/// Who holds a wallet. STUDENT wallets belong to one student; each other kind is a single
+/// school-side wallet that sits on the other side of student movements (ADR 0006).
+enum WalletKind {
+  STUDENT
+  SEPAY_BANK // credits issued against bank transfers received through SePay
+  CASH_OFFICE // credits issued against cash taken (or paid out) at the office
+  CAFETERIA // credits spent at the counter
+  ADJUSTMENT // manual corrections
+}
+
 enum LedgerType {
   TOPUP_SEPAY
   TOPUP_CASH
@@ -95,7 +105,7 @@ model User {
   requestsDecided CreditRequest[]      @relation("requestDecidedBy")
   sepayResolved   SepayTransaction[]   @relation("sepayResolvedBy")
   refunds         Refund[]
-  ledgerEntries   LedgerEntry[]
+  ledgerPostings  LedgerTransaction[]
   notifications   Notification[]
   auditLogs       AuditLog[]
   refreshTokens   RefreshToken[]
@@ -208,38 +218,56 @@ model Card {
 
 // ---------------------------------------------------------------- money
 
-/// Balance is a cached sum of the ledger, updated in the same transaction
-/// under SELECT ... FOR UPDATE (docs/adr/0002-ledger-with-row-locking.md).
-/// The migration adds CHECK ("balanceCredits" >= 0).
+/// Double-entry ledger (docs/adr/0006-double-entry-ledger.md). balanceCredits is the sum of the
+/// wallet's ledger entries and only the ledger_entries insert trigger writes it; the migration
+/// rejects any other UPDATE of it. STUDENT wallets are CHECKed >= 0; school-side wallets go
+/// negative by design, so the balances of all wallets always add up to 0.
 model Wallet {
   id             String        @id @default(uuid())
-  studentId      String        @unique
+  kind           WalletKind    @default(STUDENT)
+  studentId      String?       @unique // set exactly when kind = STUDENT
   balanceCredits Int           @default(0)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  student        Student       @relation(fields: [studentId], references: [id])
+  student        Student?      @relation(fields: [studentId], references: [id], onDelete: Restrict)
   entries        LedgerEntry[]
 
   @@map("wallets")
 }
 
-/// Append-only: never updated or deleted (FR-WAL-04).
-model LedgerEntry {
-  id            BigInt     @id @default(autoincrement())
-  walletId      String
+/// One movement of credits from one wallet to another. Always exactly two entries that sum to 0
+/// (checked by a deferred trigger at commit). Append-only: never updated or deleted (FR-WAL-04).
+model LedgerTransaction {
+  id            String        @id @default(uuid())
   type          LedgerType
-  amountCredits Int // + credit, - debit
-  balanceAfter  Int
+  amountCredits Int // > 0, the amount moved
   refType       String // ORDER | TOP_UP | SEPAY_TX | REFUND | ADJUSTMENT
   refId         String
-  actorId       String? // null for webhook-driven entries
+  actorId       String? // null for webhook-driven movements
   note          String?
-  createdAt     DateTime   @default(now())
-  wallet        Wallet     @relation(fields: [walletId], references: [id])
-  actor         User?      @relation(fields: [actorId], references: [id])
+  createdAt     DateTime      @default(now())
+  actor         User?         @relation(fields: [actorId], references: [id])
+  entries       LedgerEntry[]
 
+  @@unique([type, refType, refId]) // a business event is posted at most once
+  @@index([createdAt])
+  @@map("ledger_transactions")
+}
+
+/// One leg of a ledger transaction: -amount on the sender, +amount on the receiver.
+/// Append-only. balanceAfter is filled in by the database when the row is inserted.
+model LedgerEntry {
+  id            BigInt            @id @default(autoincrement())
+  transactionId String
+  walletId      String
+  amountCredits Int // signed: - sender, + receiver
+  balanceAfter  Int               @default(dbgenerated())
+  createdAt     DateTime          @default(now())
+  transaction   LedgerTransaction @relation(fields: [transactionId], references: [id])
+  wallet        Wallet            @relation(fields: [walletId], references: [id])
+
+  @@unique([transactionId, walletId])
   @@index([walletId, createdAt])
-  @@index([refType, refId])
   @@map("ledger_entries")
 }
 

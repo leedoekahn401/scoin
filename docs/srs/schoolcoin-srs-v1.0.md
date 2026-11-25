@@ -702,22 +702,34 @@ model ParentStudent { parentId String  studentId String  linkedAt DateTime @defa
 model InviteCode    { code String @id  studentId String  expiresAt DateTime  usedById String?  usedAt DateTime? }
 model Card          { id String @id @default(uuid())  studentId String  code String @unique  status CardStatus  issuedAt DateTime  issuedById String }
 
+// Double-entry ledger: docs/adr/0006-double-entry-ledger.md
+enum WalletKind { STUDENT SEPAY_BANK CASH_OFFICE CAFETERIA ADJUSTMENT }
+
 model Wallet {
-  id             String @id @default(uuid())
-  studentId      String @unique
-  balanceCredits Int    @default(0)   // CHECK (balance_credits >= 0) added in migration SQL
+  id             String     @id @default(uuid())
+  kind           WalletKind @default(STUDENT)
+  studentId      String?    @unique   // set exactly when kind = STUDENT
+  balanceCredits Int        @default(0) // written only by the ledger_entries trigger; STUDENT >= 0
 }
 
-model LedgerEntry {
-  id            BigInt     @id @default(autoincrement())
-  walletId      String
+model LedgerTransaction {             // one movement: exactly 2 entries summing to 0
+  id            String     @id @default(uuid())
   type          LedgerType
-  amountCredits Int                    // + credit, - debit
-  balanceAfter  Int
+  amountCredits Int                    // > 0
   refType       String                 // ORDER | TOP_UP | SEPAY_TX | REFUND | ADJUSTMENT
   refId         String
-  actorId       String?                // null for webhook-driven entries
+  actorId       String?                // null for webhook-driven movements
   note          String?
+  createdAt     DateTime   @default(now())
+  @@unique([type, refType, refId])
+}
+
+model LedgerEntry {                   // one leg: - sender, + receiver
+  id            BigInt     @id @default(autoincrement())
+  transactionId String
+  walletId      String
+  amountCredits Int
+  balanceAfter  Int                    // set by the database
   createdAt     DateTime   @default(now())
   @@index([walletId, createdAt])
 }
@@ -798,7 +810,7 @@ model Setting      { key String @id  value Json }
 
 ## B5. Money-safety design
 
-Every balance change locks the wallet row, writes a ledger entry and updates the balance in one transaction; the database's CHECK (balance\_credits >= 0) is the last line of defence.
+Every balance change locks the wallet row and posts a double-entry ledger transaction (the student wallet and a school-side wallet, two entries summing to 0) in one database transaction; the ledger trigger moves the balances and the database's CHECK (student balance >= 0) is the last line of defence (ADR 0006).
 
 **Charging at the POS** (inside prisma.$transaction):
 
@@ -808,7 +820,7 @@ Every balance change locks the wallet row, writes a ledger entry and updates the
 4. Check the PIN if the total exceeds the threshold, including the lockout counter.
 5. Compute today's spending from the ledger (PURCHASE and VOID\_REVERSAL entries since 00:00 Asia/Ho\_Chi\_Minh) and check the daily limit.
 6. Check balance ≥ total.
-7. Insert the order, its items and a PURCHASE ledger entry; update the balance.
+7. Insert the order and its items; post a PURCHASE ledger transaction (student → cafeteria).
 8. Commit; then, outside the transaction, send the low-balance alert if the balance crossed the threshold.
 
 **SePay webhook:**
@@ -816,10 +828,10 @@ Every balance change locks the wallet row, writes a ledger entry and updates the
 1. Reject with 401 unless Authorization: Apikey \<SEPAY\_WEBHOOK\_KEY> matches.
 2. Store transferType "out" transactions but change nothing.
 3. INSERT … ON CONFLICT (id) DO NOTHING into sepay\_transaction; if no row was inserted, it is a duplicate → return success.
-4. If code matches a TopUp: in one transaction lock the wallet, credit ⌊amount / 1,000⌋ credits with a TOPUP\_SEPAY entry, update the balance, mark the top-up PAID and the transaction MATCHED; set needsReview if the amount differs. Otherwise mark the transaction UNMATCHED.
+4. If code matches a TopUp: in one transaction lock the wallet, credit ⌊amount / 1,000⌋ credits with a TOPUP\_SEPAY ledger transaction (bank → student), mark the top-up PAID and the transaction MATCHED; set needsReview if the amount differs. Otherwise mark the transaction UNMATCHED.
 5. Respond 200 {"success": true}; emit the SSE event and send emails after commit.
 
-**Voids, refunds and adjustments** follow the same pattern: lock wallet → insert ledger entry → update balance → commit.
+**Voids, refunds and adjustments** follow the same pattern: lock wallet → post ledger transaction → commit.
 
 ## B6. SePay integration
 

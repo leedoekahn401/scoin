@@ -1,14 +1,8 @@
-import {
-  LedgerType,
-  OrderStatus,
-  Prisma,
-  PrismaClient,
-  TopUpStatus,
-  type MenuItem,
-} from '@prisma/client';
+import { LedgerType, OrderStatus, PrismaClient, TopUpStatus, type MenuItem } from '@prisma/client';
 import { CREDIT_VND } from '@schoolcoin/types';
 import { randomUUID } from 'node:crypto';
 import { startOfVnDay } from '../../src/common/utils/vn-day';
+import { postLedgerTransaction, schoolWalletId } from '../../src/modules/wallet/ledger.service';
 import type { SeededStudent } from './students.seed';
 import type { SeededUsers } from './users.seed';
 
@@ -31,8 +25,8 @@ function rng(seed: number) {
 }
 
 /**
- * B10: past orders and top-ups so the reports have data. Writes orders, top-ups and ledger entries
- * with a running balance, then sets the wallet balance to the final value, so balance == ledger sum.
+ * B10: past orders and top-ups so the reports have data. Each top-up and order is posted to the
+ * double-entry ledger, which moves the wallet balance (ADR 0006), so balance == ledger sum.
  * Today is left empty so the demo starts with a full daily allowance.
  */
 export async function seedHistory(prisma: PrismaClient, { users, students, menu }: SeedContext) {
@@ -41,13 +35,17 @@ export async function seedHistory(prisma: PrismaClient, { users, students, menu 
   const cashiers = [users.cashier1, users.cashier2];
   const today = startOfVnDay();
   let paymentSeq = 10_000_000;
+  const [sepayBank, cashOffice, cafeteria] = await Promise.all([
+    schoolWalletId(prisma, 'SEPAY_BANK'),
+    schoolWalletId(prisma, 'CASH_OFFICE'),
+    schoolWalletId(prisma, 'CAFETERIA'),
+  ]);
 
   for (const { student, card, walletId } of students) {
     if ((await prisma.ledgerEntry.count({ where: { walletId } })) > 0) continue;
 
     const parentLink = await prisma.parentStudent.findFirst({ where: { studentId: student.id } });
-    const entries: Prisma.LedgerEntryCreateManyInput[] = [];
-    let balance = 0;
+    let balance = 0; // tracked here only to skip orders the student could not afford
 
     await prisma.$transaction(async (tx) => {
       for (let d = DAYS; d >= 1; d--) {
@@ -82,16 +80,16 @@ export async function seedHistory(prisma: PrismaClient, { users, students, menu 
             type = LedgerType.TOPUP_CASH;
           }
           balance += amount;
-          entries.push({
-            walletId,
+          await postLedgerTransaction(tx, {
             type,
+            fromWalletId: parentLink ? sepayBank : cashOffice,
+            toWalletId: walletId,
             amountCredits: amount,
-            balanceAfter: balance,
             refType: 'TOP_UP',
             refId,
             actorId: parentLink ? null : users.accountant.id,
             note: parentLink ? null : 'Nạp tiền mặt tại văn phòng',
-            createdAt: new Date(createdAt.getTime() + 2 * 60_000),
+            at: new Date(createdAt.getTime() + 2 * 60_000),
           });
         }
 
@@ -130,21 +128,18 @@ export async function seedHistory(prisma: PrismaClient, { users, students, menu 
             },
           });
           balance -= total;
-          entries.push({
-            walletId,
+          await postLedgerTransaction(tx, {
             type: LedgerType.PURCHASE,
-            amountCredits: -total,
-            balanceAfter: balance,
+            fromWalletId: walletId,
+            toWalletId: cafeteria,
+            amountCredits: total,
             refType: 'ORDER',
             refId: order.id,
             actorId: order.cashierId,
-            createdAt,
+            at: createdAt,
           });
         }
       }
-
-      await tx.ledgerEntry.createMany({ data: entries });
-      await tx.wallet.update({ where: { id: walletId }, data: { balanceCredits: balance } });
     });
   }
 }

@@ -1,9 +1,11 @@
 erDiagram
   USER ||--o{ PARENT_STUDENT : "is parent in"
   STUDENT ||--o{ PARENT_STUDENT : "has parents"
-  STUDENT ||--|| WALLET : owns
+  STUDENT |o--o| WALLET : owns
   STUDENT ||--o{ CARD : has
   WALLET ||--o{ LEDGER_ENTRY : records
+  LEDGER_TRANSACTION ||--|{ LEDGER_ENTRY : "has 2 legs"
+  USER ||--o{ LEDGER_TRANSACTION : posts
   STUDENT ||--o{ ORDER : places
   USER ||--o{ ORDER : "rings up"
   ORDER ||--|{ ORDER_ITEM : contains

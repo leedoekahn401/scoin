@@ -1,6 +1,6 @@
 # 0002 — Append-only ledger with row locking
 
-**Status:** Accepted · SRS B5, NFR-REL-01, FR-WAL-01…05
+**Status:** Accepted, amended by [0006](0006-double-entry-ledger.md) (double-entry ledger) · SRS B5, NFR-REL-01, FR-WAL-01…05
 
 ## Context
 
