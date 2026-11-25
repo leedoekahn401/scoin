@@ -58,10 +58,10 @@ describe('Double-entry ledger', () => {
   }
 
   describe('posting', () => {
-    it('a SePay top-up is one transaction: -100 on the bank wallet, +100 on the student', async () => {
+    it('a bank top-up is one transaction: -100 on the bank wallet, +100 on the student', async () => {
       const { studentId, walletId } = await newStudent();
       const bankBefore = await balance(
-        await prisma.$transaction((tx) => ledger.schoolWalletId(tx, 'SEPAY_BANK')),
+        await prisma.$transaction((tx) => ledger.schoolWalletId(tx, 'BANK')),
       );
 
       const result = await credit(move(studentId, LedgerType.TOPUP_SEPAY, 100));
@@ -69,7 +69,7 @@ describe('Double-entry ledger', () => {
       expect(result.balanceAfter).toBe(100);
       const entries = await legs(result.transactionId);
       expect(entries.map((e) => [e.wallet.kind, e.amountCredits])).toEqual([
-        ['SEPAY_BANK', -100],
+        ['BANK', -100],
         ['STUDENT', 100],
       ]);
       expect(entries[0].balanceAfter).toBe(bankBefore - 100);
@@ -113,7 +113,7 @@ describe('Double-entry ledger', () => {
       const refund = await debit({
         ...move(studentId, LedgerType.REFUND, 40),
         refType: 'REFUND',
-        counterparty: 'SEPAY_BANK',
+        counterparty: 'BANK',
       });
 
       expect(refund.balanceAfter).toBe(0);
@@ -121,7 +121,7 @@ describe('Double-entry ledger', () => {
         (await legs(refund.transactionId)).map((e) => [e.wallet.kind, e.amountCredits]),
       ).toEqual([
         ['STUDENT', -40],
-        ['SEPAY_BANK', 40],
+        ['BANK', 40],
       ]);
     });
 

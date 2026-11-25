@@ -18,17 +18,17 @@ The front-ends call the backend only through `packages/api-client/src/contract.t
 
 The screens needed a few routes the SRS did not list. All are implemented in `apps/mock-api` on port `4010`.
 
-| Route                                                                                                  | Why                                                              |
-| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `GET /settings/public` → `{pinThresholdCredits, topUpMinCredits, topUpMaxCredits, topUpExpiryMinutes}` | Parent top-up range and POS PIN hint, without admin rights       |
-| `PATCH /me`, `POST /me/password`                                                                       | Parent account screen (profile, email prefs FR-NOT-04, password) |
-| `POST /kiosk/cards/identify {cardCode}` → `{fullName, className, photoUrl, pinLockedUntil, hasPin}`    | The kiosk greets the student before the PIN pad                  |
-| `GET /admin/students/:id/transactions?page&pageSize`                                                   | Wallet history on the student page                               |
-| `POST /admin/topups/:id/reviewed`                                                                      | Clear `needsReview` after the accountant checks it               |
-| `GET /admin/refunds`, `GET /admin/adjustments`                                                         | History lists next to the forms                                  |
-| `DELETE /admin/menu/items/:id/sold-out`                                                                | Undo "sold out today"                                            |
-| `GET /admin/topups/review` returns `TopUpReviewItem` (adds `transferAmountVnd`, `remainderVnd`)        | Show requested vs received                                       |
-| `/dev/*` (simulate-transfer, demo-cards, reset)                                                        | Demo only; do not implement in production                        |
+| Route                                                                                                  | Why                                                                                                |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `GET /settings/public` → `{pinThresholdCredits, topUpMinCredits, topUpMaxCredits, topUpExpiryMinutes}` | Parent top-up range and POS PIN hint, without admin rights                                         |
+| `PATCH /me`, `POST /me/password`                                                                       | Parent account screen (profile, email prefs FR-NOT-04, password)                                   |
+| `POST /kiosk/cards/identify {cardCode}` → `{fullName, className, photoUrl, pinLockedUntil, hasPin}`    | The kiosk greets the student before the PIN pad                                                    |
+| `GET /admin/students/:id/transactions?page&pageSize`                                                   | Wallet history on the student page                                                                 |
+| `POST /admin/topups/:id/reviewed`                                                                      | Clear `needsReview` after the accountant checks it                                                 |
+| `GET /admin/refunds`, `GET /admin/adjustments`                                                         | History lists next to the forms                                                                    |
+| `DELETE /admin/menu/items/:id/sold-out`                                                                | Undo "sold out today"                                                                              |
+| `GET /admin/topups/review` returns `TopUpReviewItem` (adds `transferAmountVnd`, `remainderVnd`)        | Show requested vs received                                                                         |
+| `/dev/*` (simulate-transfer, demo-cards, reset)                                                        | Demo only. The API serves `simulate-transfer` while the mock payment provider is active (ADR 0007) |
 
 ## Shapes
 

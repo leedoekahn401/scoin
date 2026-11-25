@@ -12,7 +12,7 @@ export interface WalletMovement {
   refId: string;
   actorId?: string;
   note?: string;
-  /** The school-side wallet on the other side; defaults by type (a bank-transfer REFUND passes SEPAY_BANK). */
+  /** The school-side wallet on the other side; defaults by type (a bank-transfer REFUND passes BANK). */
   counterparty?: SchoolWalletKind;
 }
 
@@ -29,7 +29,7 @@ export interface WalletMovementResult {
 
 /** Where the credits of each kind of student movement come from or go to. */
 export const DEFAULT_COUNTERPARTY: Record<LedgerType, SchoolWalletKind> = {
-  TOPUP_SEPAY: 'SEPAY_BANK',
+  TOPUP_SEPAY: 'BANK',
   TOPUP_CASH: 'CASH_OFFICE',
   PURCHASE: 'CAFETERIA',
   VOID_REVERSAL: 'CAFETERIA',

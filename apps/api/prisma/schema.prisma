@@ -37,7 +37,7 @@ enum CardStatus {
 /// school-side wallet that sits on the other side of student movements (ADR 0006).
 enum WalletKind {
   STUDENT
-  SEPAY_BANK // credits issued against bank transfers received through SePay
+  BANK // credits issued against bank transfers received (any payment provider)
   CASH_OFFICE // credits issued against cash taken (or paid out) at the office
   CAFETERIA // credits spent at the counter
   ADJUSTMENT // manual corrections

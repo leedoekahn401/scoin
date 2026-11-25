@@ -36,7 +36,7 @@ export async function seedHistory(prisma: PrismaClient, { users, students, menu 
   const today = startOfVnDay();
   let paymentSeq = 10_000_000;
   const [sepayBank, cashOffice, cafeteria] = await Promise.all([
-    schoolWalletId(prisma, 'SEPAY_BANK'),
+    schoolWalletId(prisma, 'BANK'),
     schoolWalletId(prisma, 'CASH_OFFICE'),
     schoolWalletId(prisma, 'CAFETERIA'),
   ]);

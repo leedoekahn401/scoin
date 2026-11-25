@@ -703,7 +703,7 @@ model InviteCode    { code String @id  studentId String  expiresAt DateTime  use
 model Card          { id String @id @default(uuid())  studentId String  code String @unique  status CardStatus  issuedAt DateTime  issuedById String }
 
 // Double-entry ledger: docs/adr/0006-double-entry-ledger.md
-enum WalletKind { STUDENT SEPAY_BANK CASH_OFFICE CAFETERIA ADJUSTMENT }
+enum WalletKind { STUDENT BANK CASH_OFFICE CAFETERIA ADJUSTMENT }
 
 model Wallet {
   id             String     @id @default(uuid())

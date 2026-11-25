@@ -16,15 +16,15 @@ credits came from or went to, and any code path could write a balance that no en
 - **School-side wallets are the other side.** `wallets.kind` is `STUDENT` or one of four
   single school-side wallets, created by the migration:
 
-  | Movement                     | From → to                                                     |
-  | ---------------------------- | ------------------------------------------------------------- |
-  | `TOPUP_SEPAY`                | `SEPAY_BANK` → student                                        |
-  | `TOPUP_CASH`                 | `CASH_OFFICE` → student                                       |
-  | `PURCHASE` / `VOID_REVERSAL` | student → `CAFETERIA` / `CAFETERIA` → student                 |
-  | `REFUND`                     | student → `CASH_OFFICE` (or `SEPAY_BANK` for a bank transfer) |
-  | `ADJUSTMENT`                 | `ADJUSTMENT` ↔ student                                        |
+  | Movement                     | From → to                                               |
+  | ---------------------------- | ------------------------------------------------------- |
+  | `TOPUP_SEPAY`                | `BANK` → student                                        |
+  | `TOPUP_CASH`                 | `CASH_OFFICE` → student                                 |
+  | `PURCHASE` / `VOID_REVERSAL` | student → `CAFETERIA` / `CAFETERIA` → student           |
+  | `REFUND`                     | student → `CASH_OFFICE` (or `BANK` for a bank transfer) |
+  | `ADJUSTMENT`                 | `ADJUSTMENT` ↔ student                                  |
 
-  School-side wallets go negative by design (`SEPAY_BANK` = −credits issued against bank
+  School-side wallets go negative by design (`BANK` = −credits issued against bank
   transfers), so **the balances of all wallets always add up to 0**.
 
 - **Nobody edits a balance.** A `BEFORE INSERT` trigger on `ledger_entries` adds the amount to
@@ -51,7 +51,7 @@ credits came from or went to, and any code path could write a balance that no en
 ## Consequences
 
 - Every credit can be traced to a source (bank, cash, cafeteria, correction), and the school-side
-  balances double as reconciliation totals: `-SEPAY_BANK` should match SePay receipts minus bank
+  balances double as reconciliation totals: `-BANK` should match bank-transfer receipts minus bank
   refunds, `-CASH_OFFICE` the cash taken in minus paid out, `CAFETERIA` the net sales.
 - The API's wire `LedgerEntry` (student view: type, signed amount, balanceAfter) is unchanged; it is
   now the student's leg joined with its transaction.

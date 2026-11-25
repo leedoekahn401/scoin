@@ -13,7 +13,7 @@ BEGIN;
 -- ---------------------------------------------------------------- wallets
 
 -- CreateEnum
-CREATE TYPE "WalletKind" AS ENUM ('STUDENT', 'SEPAY_BANK', 'CASH_OFFICE', 'CAFETERIA', 'ADJUSTMENT');
+CREATE TYPE "WalletKind" AS ENUM ('STUDENT', 'BANK', 'CASH_OFFICE', 'CAFETERIA', 'ADJUSTMENT');
 
 -- AlterTable
 ALTER TABLE "wallets" ADD COLUMN "kind" "WalletKind" NOT NULL DEFAULT 'STUDENT',
@@ -33,7 +33,7 @@ CREATE UNIQUE INDEX "wallets_one_per_school_kind" ON "wallets" ("kind") WHERE "k
 
 INSERT INTO "wallets" ("id", "kind", "balanceCredits", "updatedAt")
 SELECT gen_random_uuid()::text, k::"WalletKind", 0, CURRENT_TIMESTAMP
-FROM unnest(ARRAY['SEPAY_BANK', 'CASH_OFFICE', 'CAFETERIA', 'ADJUSTMENT']) AS k;
+FROM unnest(ARRAY['BANK', 'CASH_OFFICE', 'CAFETERIA', 'ADJUSTMENT']) AS k;
 
 -- ---------------------------------------------------------------- old single-entry rows
 
@@ -44,11 +44,11 @@ SELECT
   gen_random_uuid()::text AS "transactionId",
   (SELECT w."id" FROM "wallets" w WHERE w."kind" = (
     CASE
-      WHEN e."type" = 'TOPUP_SEPAY' THEN 'SEPAY_BANK'
+      WHEN e."type" = 'TOPUP_SEPAY' THEN 'BANK'
       WHEN e."type" = 'TOPUP_CASH' THEN 'CASH_OFFICE'
       WHEN e."type" IN ('PURCHASE', 'VOID_REVERSAL') THEN 'CAFETERIA'
       WHEN e."type" = 'ADJUSTMENT' THEN 'ADJUSTMENT'
-      WHEN r."method" = 'BANK_TRANSFER' THEN 'SEPAY_BANK'
+      WHEN r."method" = 'BANK_TRANSFER' THEN 'BANK'
       ELSE 'CASH_OFFICE' -- REFUND paid in cash
     END)::"WalletKind") AS "counterWalletId"
 FROM "ledger_entries" e
