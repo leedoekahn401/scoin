@@ -1,5 +1,5 @@
 {
-  "extends": "@schoolcoin/config/tsconfig/nestjs.json",
+  "extends": "@schoolcoin/config/tsconfig/node.json",
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./"

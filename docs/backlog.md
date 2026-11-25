@@ -106,7 +106,7 @@ their own work items are listed at the end.
 | Prisma schema and first migration                                          | B4             | BE-1, BE-2 | 1 — done (`0001_init`)                     |
 | Seed data                                                                  | B10            | BE-4       | 1 — done                                   |
 | `packages/ui` and sign-in screens in all four apps                         | B13 sprint 1   | FE-1, FE-2 | 1                                          |
-| Rate limits: sign-in 10/min/IP, kiosk PIN 5/min/device, webhook 60/min     | NFR-SEC-07     | BE-1       | 1 — wired with `@nestjs/throttler`         |
+| Rate limits: sign-in 10/min/IP, kiosk PIN 5/min/device, webhook 60/min     | NFR-SEC-07     | BE-1       | 1 — `common/http/rate-limit.ts`            |
 | Wallet service: lock → ledger entry → balance, one transaction             | NFR-REL-01, B5 | BE-2       | 2                                          |
 | Idempotent POS charge                                                      | NFR-REL-02     | BE-2       | 2                                          |
 | Idempotent webhook on SePay id                                             | NFR-REL-03     | BE-3       | 3                                          |

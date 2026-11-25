@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import type { PrismaClient } from '@prisma/client';
+import { prisma } from '../../prisma';
 
 /** BE-4 — sales, top-ups, balances, dashboard, CSV. */
-@Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaClient) {}
 }
+
+export const reportsService = new ReportsService(prisma);

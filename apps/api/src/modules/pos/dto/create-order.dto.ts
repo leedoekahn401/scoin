@@ -1,47 +1,23 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  ArrayMinSize,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  Matches,
-  Min,
-  ValidateNested,
-} from 'class-validator';
+import type { CreateOrderDto } from '@schoolcoin/types';
+import { z } from '../../../common/zod';
 
-export class OrderLineDto {
-  @ApiProperty()
-  @IsUUID()
-  menuItemId: string;
+// z.guid() accepts any 8-4-4-4-12 hex id, like class-validator's IsUUID().
+export const orderLineSchema = z.object({
+  menuItemId: z.guid(),
+  quantity: z.number().int().min(1),
+});
 
-  @ApiProperty({ minimum: 1 })
-  @IsInt()
-  @Min(1)
-  quantity: number;
-}
-
-export class CreateOrderDto {
-  @ApiProperty({ description: 'Scanned card code' })
-  @IsString()
-  cardCode: string;
-
-  @ApiProperty({ type: [OrderLineDto] })
-  @ValidateNested({ each: true })
-  @Type(() => OrderLineDto)
-  @ArrayMinSize(1)
-  items: OrderLineDto[];
-
-  @ApiProperty({
-    required: false,
-    description: 'Required when the total exceeds the PIN threshold',
+export const createOrderSchema = z
+  .object({
+    cardCode: z.string().openapi({ description: 'Scanned card code' }),
+    items: z.array(orderLineSchema).min(1),
+    pin: z
+      .string()
+      .regex(/^\d{4}$/)
+      .optional()
+      .openapi({ description: 'Required when the total exceeds the PIN threshold' }),
+    idempotencyKey: z
+      .guid()
+      .openapi({ description: 'One per checkout; retries reuse it (NFR-REL-02)' }),
   })
-  @IsOptional()
-  @Matches(/^\d{4}$/)
-  pin?: string;
-
-  @ApiProperty({ description: 'One per checkout; retries reuse it (NFR-REL-02)' })
-  @IsUUID()
-  idempotencyKey: string;
-}
+  .openapi('CreateOrderDto') satisfies z.ZodType<CreateOrderDto>;

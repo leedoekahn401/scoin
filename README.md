@@ -9,7 +9,7 @@ ask for more, and the school council runs it all from an admin page. **1 credit 
 
 | App            | Path            | Port                                              | Owner     |
 | -------------- | --------------- | ------------------------------------------------- | --------- |
-| API (NestJS)   | `apps/api`      | 4000 — base path `/api/v1`, Swagger at `/docs`    | BE-1…BE-4 |
+| API (Express)  | `apps/api`      | 4000 — base path `/api/v1`, Swagger at `/docs`    | BE-1…BE-4 |
 | Mock API (dev) | `apps/mock-api` | 4010 — base path `/api/v1`, reset at `/dev/reset` | FE-1…FE-2 |
 | POS            | `apps/pos`      | 3001                                              | FE-1      |
 | Parent PWA     | `apps/parent`   | 3002                                              | FE-2      |
@@ -65,7 +65,7 @@ then `pnpm db:seed`.
 ## Front-end MVP
 
 The four Next.js 15 apps (`apps/pos`, `apps/parent`, `apps/kiosk`, `apps/admin`) share
-`packages/{types,api-client,mock-data,ui,config}` and run without the NestJS API by default.
+`packages/{types,api-client,mock-data,ui,config}` and run without the Express API by default.
 
 ```bash
 pnpm dev:pos       # POS on http://localhost:3001
@@ -113,7 +113,7 @@ Install browsers once with `pnpm exec playwright install chromium` if `pnpm test
 
 - [Front-end conventions](docs/frontend/CONVENTIONS.md)
 - [API notes for the backend team](docs/frontend/API-NOTES.md)
-- [Architecture decisions](docs/adr/)
+- [Architecture decisions](docs/adr/) (API on Express: [ADR 0005](docs/adr/0005-express-instead-of-nestjs.md))
 - [SePay setup](docs/sepay-setup.md)
 - [Demo script](docs/demo-script.md)
 - [Diagrams](docs/diagrams/) (Mermaid, from the SRS)

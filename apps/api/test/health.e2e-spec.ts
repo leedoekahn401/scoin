@@ -1,20 +1,13 @@
-import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { createApp } from '../src/app';
+import { prisma } from '../src/prisma';
 
 describe('GET /health', () => {
-  let app: INestApplication;
+  const app = createApp();
 
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = moduleRef.createNestApplication();
-    await app.init();
-  });
-
-  afterAll(() => app.close());
+  afterAll(() => prisma.$disconnect());
 
   it('reports the database as up', async () => {
-    await request(app.getHttpServer()).get('/health').expect(200, { status: 'ok', db: 'up' });
+    await request(app).get('/health').expect(200, { status: 'ok', db: 'up' });
   });
 });

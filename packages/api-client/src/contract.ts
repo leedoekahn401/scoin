@@ -83,7 +83,7 @@ import type {
  * THE front-end ↔ back-end contract. Every screen talks to the backend only
  * through this interface, obtained from `useApi()`. Two implementations exist:
  *
- *   - `HttpApi`  — fetch against the NestJS API (`/api/v1`, SRS §B7).
+ *   - `HttpApi`  — fetch against the Express API (`/api/v1`, SRS §B7).
  *   - `MockApi`  — the same business rules running in the browser on seed data.
  *
  * Method → endpoint mapping lives next to each method so the backend team can
@@ -307,7 +307,7 @@ export interface AdminApi {
 
 /**
  * Demo-only helpers. In mock mode they run in the browser; in http mode they
- * call the mock API server's `/dev/*` routes. A real NestJS deployment does not
+ * call the mock API server's `/dev/*` routes. A real Express deployment does not
  * implement these, and the UI hides the controls unless `demoTools` is on.
  */
 export interface DevApi {

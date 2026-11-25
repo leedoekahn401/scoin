@@ -36,7 +36,7 @@ function buildQuery(query?: Query): string {
 }
 
 /**
- * `SchoolCoinApi` over fetch, matching SRS §B7. Point `baseUrl` at the NestJS
+ * `SchoolCoinApi` over fetch, matching SRS §B7. Point `baseUrl` at the Express
  * API (or the bundled mock server on :4000) and every screen works unchanged.
  */
 export function createHttpApi({ baseUrl, kioskKey }: HttpApiOptions): SchoolCoinApi {
