@@ -60,6 +60,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The seed imports built workspace packages (e.g. @schoolcoin/types/dist).
+      - run: pnpm exec turbo run build --filter='@schoolcoin/api^...'
       - run: pnpm test:e2e
 
   # Playwright: one happy path per front-end app, in-browser mock API.
