@@ -101,16 +101,5 @@ export async function seedStudents(
     result.push({ student, card, walletId: student.wallet!.id });
   }
 
-  // An unused invite code for Vy so registration (UC-01) can be demoed.
-  await prisma.inviteCode.upsert({
-    where: { code: 'DEMOVY26' },
-    update: {},
-    create: {
-      code: 'DEMOVY26',
-      studentId: result[3].student.id,
-      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-    },
-  });
-
   return result;
 }
