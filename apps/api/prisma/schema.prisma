@@ -72,22 +72,22 @@ enum RequestStatus {
 // ---------------------------------------------------------------- people
 
 model User {
-  id           String     @id @default(uuid())
-  role         Role
-  email        String?    @unique // null for cashiers
-  username     String?    @unique // cashiers
-  phone        String?
-  fullName     String
-  passwordHash String
-  status       UserStatus @default(ACTIVE)
-  failedLogins Int        @default(0)
-  lockedUntil  DateTime?
-  emailPrefs   Json? // per-notification-type email on/off (FR-NOT-04)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                 String     @id @default(uuid())
+  role               Role
+  email              String?    @unique // null for cashiers
+  username           String?    @unique // cashiers
+  phone              String?
+  fullName           String
+  passwordHash       String
+  status             UserStatus @default(ACTIVE)
+  failedLogins       Int        @default(0)
+  mustChangePassword Boolean    @default(false) // preset parent account until the first password change (FR-AUTH-02)
+  lockedUntil        DateTime?
+  emailPrefs         Json? // per-notification-type email on/off (FR-NOT-04)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   children        ParentStudent[]
-  invitesUsed     InviteCode[]         @relation("inviteUsedBy")
   cardsIssued     Card[]               @relation("cardIssuedBy")
   ordersRungUp    Order[]              @relation("orderCashier")
   ordersVoided    Order[]              @relation("orderVoidedBy")
@@ -149,7 +149,6 @@ model Student {
 
   wallet        Wallet?
   parents       ParentStudent[]
-  inviteCodes   InviteCode[]
   cards         Card[]
   orders        Order[]
   topUps        TopUp[]
@@ -171,21 +170,6 @@ model ParentStudent {
   @@id([parentId, studentId])
   @@index([studentId])
   @@map("parent_students")
-}
-
-model InviteCode {
-  code      String    @id
-  studentId String
-  expiresAt DateTime
-  usedById  String?
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  usedBy    User?     @relation("inviteUsedBy", fields: [usedById], references: [id])
-
-  @@index([studentId])
-  @@map("invite_codes")
 }
 
 /// BR-12: at most one ACTIVE card per student (enforced by a partial unique index in the migration).

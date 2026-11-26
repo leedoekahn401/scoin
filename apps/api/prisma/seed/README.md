@@ -12,13 +12,13 @@
 
 All passwords: see `DEMO_PASSWORD` in `users.seed.ts`. All student PINs: `DEMO_PIN` in `students.seed.ts`.
 
-| Student           | Class | Card code          | Parents                       | Controls              |
-| ----------------- | ----- | ------------------ | ----------------------------- | --------------------- |
-| Nguyễn Minh Khang | 7A1   | `DEMOKHANG7A1CARD` | An, Bình (two parents)        | limit 40, alert at 20 |
-| Nguyễn Bảo Ngọc   | 8A2   | `DEMONGOC8A2CARDX` | An (An has two children)      | —                     |
-| Lê Gia Huy        | 7A1   | `DEMOHUY7A1CARDXX` | Cường                         | limit 60              |
-| Phạm Thảo Vy      | 8A2   | `DEMOVY8A2CARDXXX` | none — invite code `DEMOVY26` | —                     |
-| Đỗ Đức Anh        | 7A1   | `DEMOANH7A1CARDXX` | none                          | —                     |
+| Student           | Class | Card code          | Parents                              | Controls              |
+| ----------------- | ----- | ------------------ | ------------------------------------ | --------------------- |
+| Nguyễn Minh Khang | 7A1   | `DEMOKHANG7A1CARD` | An, Bình (two parents)               | limit 40, alert at 20 |
+| Nguyễn Bảo Ngọc   | 8A2   | `DEMONGOC8A2CARDX` | An (An has two children)             | —                     |
+| Lê Gia Huy        | 7A1   | `DEMOHUY7A1CARDXX` | Cường                                | limit 60              |
+| Phạm Thảo Vy      | 8A2   | `DEMOVY8A2CARDXXX` | none (link a preset parent in admin) | —                     |
+| Đỗ Đức Anh        | 7A1   | `DEMOANH7A1CARDXX` | none                                 | —                     |
 
 Card codes are fixed (not random like real ones, NFR-SEC-05) so printed demo cards survive a reset.
 The kiosk device key comes from `SEED_KIOSK_KEY` in `apps/api/.env`.
