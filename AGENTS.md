@@ -16,6 +16,8 @@ Before finishing: `pnpm lint:design`, `pnpm lint`, `pnpm typecheck` must pass.
 
 ## Backend (`apps/api`)
 
+Before adding or changing a route, read [`docs/api/express-utils.md`](docs/api/express-utils.md): the **MUST** rules for `route()`, errors, request helpers, pagination, date ranges and SSE. `apps/api/src/modules/examples` is a working mock-up of all of them.
+
 Money is stored in integer credits; "today" is the Asia/Ho_Chi_Minh day. Shared enums, error codes, constants and the permission matrix live in `packages/types`: keep the names `apps/api` imports stable.
 
 ## Requirements

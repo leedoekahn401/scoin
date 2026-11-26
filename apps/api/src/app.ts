@@ -13,11 +13,15 @@ import { auditRouter } from './modules/audit/audit.routes';
 import { authRouter } from './modules/auth/auth.routes';
 import { cardsRouter } from './modules/cards/cards.routes';
 import { controlsRouter } from './modules/controls/controls.routes';
+import { examplesRouter } from './modules/examples/examples.routes';
 import { familiesRouter } from './modules/families/families.routes';
 import { financeRouter } from './modules/finance/finance.routes';
 import { kioskRouter } from './modules/kiosk/kiosk.routes';
 import { menuRouter } from './modules/menu/menu.routes';
 import { notificationsRouter } from './modules/notifications/notifications.routes';
+import { devRouter } from './modules/payments/dev.routes';
+import { mockPaymentProvider } from './modules/payments/mock-payment.provider';
+import { paymentProvider } from './modules/payments/payments.service';
 import { posRouter } from './modules/pos/pos.routes';
 import { reportsRouter } from './modules/reports/reports.routes';
 import { requestsRouter } from './modules/requests/requests.routes';
@@ -67,6 +71,10 @@ export function createApp() {
   ]) {
     api.use(router);
   }
+  // Simulated payments exist only while the mock payment provider is active (ADR 0007).
+  if (paymentProvider === mockPaymentProvider) api.use(devRouter);
+  // In-memory mock-up of the HTTP helpers (docs/api/express-utils.md); never in production.
+  if (config.env !== 'production') api.use(examplesRouter);
   app.use(`/${API_PREFIX}`, api);
 
   const document = buildOpenApiDocument();

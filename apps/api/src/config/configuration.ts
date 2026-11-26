@@ -1,5 +1,6 @@
 // Values marked `!` are required; validateEnv() fails at boot when one is missing.
 export default () => ({
+  env: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT ?? 4000),
   corsOrigins: (process.env.CORS_ORIGINS ?? '').split(',').filter(Boolean),
   appUrls: {
