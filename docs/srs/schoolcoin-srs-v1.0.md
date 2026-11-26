@@ -1,15 +1,15 @@
 # SchoolCoin — Software Requirements Specification and Technical Design
 
-Nov 19, 2026 · @Tri Quang Bi
+Nov 19, 2026
 
 SchoolCoin is a prepaid credit system for one school: parents top up by VietQR bank transfer through SePay, students pay at the cafeteria with a student card, a kiosk lets students check their balance and ask for more, and the school council runs it all from an admin page. 1 credit = 1,000 VND.
 
-|                                 |                                                                                                                       |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Course                          | Software Engineering                                                                                                  |
-| Version                         | 1.0 — draft for team review                                                                                           |
-| Team (6: 4 backend, 2 frontend) | Le Duc Anh (202417097) · \[Member 2, ID\] · \[Member 3, ID\] · \[Member 4, ID\] · \[Member 5, ID\] · \[Member 6, ID\] |
-| Stack                           | Next.js (4 front-end apps) · NestJS (API) · PostgreSQL · SePay                                                        |
+|                                 |                                                                                                                                                                                               |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Course                          | Software Engineering                                                                                                                                                                          |
+| Version                         | 1.0 — draft for team review                                                                                                                                                                   |
+| Team (6: 4 backend, 2 frontend) | Lê Đức Anh (202417097, BE-1) · Đỗ Huy Du (202417108, BE-2) · Trần Đức Nam (202417175, BE-3) · Đặng Xuân Bách (202417099, BE-4) · Lê Đình Vĩnh (202417221, FE-1) · Hoàng Anh (202417093, FE-2) |
+| Stack                           | Next.js (4 front-end apps) · Express (API) · PostgreSQL · SePay                                                                                                                               |
 
 **Part A** is the Software Requirements Specification for grading, structured after ISO/IEC/IEEE 29148. **Part B** is the technical appendix the team builds from: architecture, data model, API, SePay integration, task split and milestones.
 
@@ -60,7 +60,7 @@ SchoolCoin consists of four web applications and one backend service:
 
 - ISO/IEC/IEEE 29148:2018, Systems and software engineering — Life cycle processes — Requirements engineering
 - [SePay developer documentation](https://developer.sepay.vn): webhooks, VietQR generation, Test mode
-- Next.js and NestJS official documentation
+- Next.js and Express official documentation
 
 ## 2. Overall description
 
@@ -76,7 +76,7 @@ flowchart LR
     KIO[Kiosk app - Next.js]
     ADM[Admin page - Next.js]
   end
-  API[SchoolCoin API - NestJS]
+  API[SchoolCoin API - Express]
   DB[(PostgreSQL)]
   SEPAY[SePay]
   BANK[Parent's banking app]
@@ -93,16 +93,16 @@ flowchart LR
 
 ### 2.2 Users and actors
 
-| Actor                | Description                                                                                       | How they sign in                    |
-| -------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| Parent               | Parent or guardian of one or more students. A student can be linked to up to two parent accounts. | Email + password                    |
-| Student              | Has no account. Interacts only by scanning their card (POS, kiosk) and entering their PIN.        | Card + PIN (kiosk only)             |
-| Cashier              | Cafeteria staff operating the POS.                                                                | Username + password on the POS      |
-| Cafeteria manager    | Manages the menu, prices, cashier accounts and sales reports.                                     | Email + password                    |
-| Accountant           | Handles cash top-ups, unmatched payments, refunds and financial reports.                          | Email + password                    |
-| Council admin        | Full control: users, students, cards, families, settings, audit log.                              | Email + password                    |
-| SePay (external)     | Sends a webhook for each incoming bank transfer.                                                  | API key in the Authorization header |
-| Scheduler (internal) | Runs timed jobs: expires old top-ups and requests.                                                | —                                   |
+| Actor                | Description                                                                                                                       | How they sign in                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Parent               | Parent or guardian of one or more students. The school creates the account; a student can be linked to up to two parent accounts. | Email + password                    |
+| Student              | Has no account. Interacts only by scanning their card (POS, kiosk) and entering their PIN.                                        | Card + PIN (kiosk only)             |
+| Cashier              | Cafeteria staff operating the POS.                                                                                                | Username + password on the POS      |
+| Cafeteria manager    | Manages the menu, prices, cashier accounts and sales reports.                                                                     | Email + password                    |
+| Accountant           | Handles cash top-ups, unmatched payments, refunds and financial reports.                                                          | Email + password                    |
+| Council admin        | Full control: users, students, cards, families, settings, audit log.                                                              | Email + password                    |
+| SePay (external)     | Sends a webhook for each incoming bank transfer.                                                                                  | API key in the Authorization header |
+| Scheduler (internal) | Runs timed jobs: expires old top-ups and requests.                                                                                | —                                   |
 
 ### 2.3 Operating environment
 
@@ -114,7 +114,7 @@ flowchart LR
 
 ### 2.4 Design and implementation constraints
 
-- **C-01** All four front-ends use Next.js (App Router, TypeScript); the backend uses NestJS (TypeScript).
+- **C-01** All four front-ends use Next.js (App Router, TypeScript); the backend uses Express (TypeScript).
 - **C-02** Bank-transfer top-ups use SePay. Development and the course demo use SePay Test mode with simulated transfers.
 - **C-03** 1 credit = 1,000 VND, and credits are whole numbers.
 - **C-04** Students have no accounts; student personal data is limited to what the system needs.
@@ -132,32 +132,31 @@ flowchart LR
 
 ### 3.1 Use case list
 
-| ID    | Use case                                      | Primary actor                                |
-| ----- | --------------------------------------------- | -------------------------------------------- |
-| UC-01 | Register and link a child with an invite code | Parent                                       |
-| UC-02 | Sign in, sign out, reset password             | Parent, staff                                |
-| UC-03 | View a child's balance and transactions       | Parent                                       |
-| UC-04 | Top up via VietQR (SePay)                     | Parent                                       |
-| UC-05 | Set daily limit and low-balance threshold     | Parent                                       |
-| UC-06 | Answer a credit request                       | Parent                                       |
-| UC-07 | Lock a lost card                              | Parent, council admin                        |
-| UC-08 | Charge an order at the POS                    | Cashier                                      |
-| UC-09 | Void an order                                 | Cashier, cafeteria manager                   |
-| UC-10 | Check balance at the kiosk                    | Student                                      |
-| UC-11 | Ask a parent for credits                      | Student                                      |
-| UC-12 | Manage the menu and prices                    | Cafeteria manager                            |
-| UC-13 | Manage cashier accounts                       | Cafeteria manager                            |
-| UC-14 | Record a cash top-up                          | Accountant                                   |
-| UC-15 | Resolve an unmatched payment                  | Accountant                                   |
-| UC-16 | Record a refund                               | Accountant                                   |
-| UC-17 | View reports                                  | Accountant, cafeteria manager, council admin |
-| UC-18 | Manage students, cards and PINs               | Council admin                                |
-| UC-19 | Manage staff users and roles                  | Council admin                                |
-| UC-20 | Create family invite codes                    | Council admin                                |
-| UC-21 | Change system settings                        | Council admin                                |
-| UC-22 | View the audit log                            | Council admin                                |
-| UC-23 | Receive a bank transfer notification          | SePay (system)                               |
-| UC-24 | Expire stale top-ups and requests             | Scheduler (system)                           |
+| ID    | Use case                                         | Primary actor                                |
+| ----- | ------------------------------------------------ | -------------------------------------------- |
+| UC-02 | Sign in, sign out, reset password                | Parent, staff                                |
+| UC-03 | View a child's balance and transactions          | Parent                                       |
+| UC-04 | Top up via VietQR (SePay)                        | Parent                                       |
+| UC-05 | Set daily limit and low-balance threshold        | Parent                                       |
+| UC-06 | Answer a credit request                          | Parent                                       |
+| UC-07 | Lock a lost card                                 | Parent, council admin                        |
+| UC-08 | Charge an order at the POS                       | Cashier                                      |
+| UC-09 | Void an order                                    | Cashier, cafeteria manager                   |
+| UC-10 | Check balance at the kiosk                       | Student                                      |
+| UC-11 | Ask a parent for credits                         | Student                                      |
+| UC-12 | Manage the menu and prices                       | Cafeteria manager                            |
+| UC-13 | Manage cashier accounts                          | Cafeteria manager                            |
+| UC-14 | Record a cash top-up                             | Accountant                                   |
+| UC-15 | Resolve an unmatched payment                     | Accountant                                   |
+| UC-16 | Record a refund                                  | Accountant                                   |
+| UC-17 | View reports                                     | Accountant, cafeteria manager, council admin |
+| UC-18 | Manage students, cards and PINs                  | Council admin                                |
+| UC-19 | Manage staff users and roles                     | Council admin                                |
+| UC-20 | Create parent accounts and link them to students | Council admin                                |
+| UC-21 | Change system settings                           | Council admin                                |
+| UC-22 | View the audit log                               | Council admin                                |
+| UC-23 | Receive a bank transfer notification             | SePay (system)                               |
+| UC-24 | Expire stale top-ups and requests                | Scheduler (system)                           |
 
 ### 3.2 Use case diagram
 
@@ -171,7 +170,6 @@ flowchart LR
   Admin((Council admin))
   SePay((SePay))
   subgraph SchoolCoin
-    UC01[UC-01 Register and link child]
     UC03[UC-03 View balance and transactions]
     UC04[UC-04 Top up via VietQR]
     UC05[UC-05 Set controls]
@@ -192,7 +190,7 @@ flowchart LR
     UC22[UC-22 Audit log]
     UC23[UC-23 Receive transfer notification]
   end
-  Parent --- UC01 & UC03 & UC04 & UC05 & UC06 & UC07
+  Parent --- UC03 & UC04 & UC05 & UC06 & UC07
   Student --- UC10 & UC11
   Cashier --- UC08 & UC09
   Manager --- UC12 & UC13 & UC09 & UC17
@@ -284,24 +282,23 @@ Priority uses MoSCoW: **M** = Must (needed for the demo), **S** = Should, **C** 
 
 ### 4.1 Authentication and accounts (AUTH)
 
-| ID         | Requirement                                                                                                           | Pri |
-| ---------- | --------------------------------------------------------------------------------------------------------------------- | --- |
-| FR-AUTH-01 | Parents and staff sign in with email (cashiers: username) and password.                                               | M   |
-| FR-AUTH-02 | A parent registers with an invite code from the school; the code links the new account to a student.                  | M   |
-| FR-AUTH-03 | Users can reset a forgotten password through an emailed link that expires after 30 minutes.                           | S   |
-| FR-AUTH-04 | Role-based access: each endpoint and admin screen is available only to the roles in the permission matrix (4.12).     | M   |
-| FR-AUTH-05 | Sessions expire after inactivity: 30 minutes for admin roles, 12 hours for cashiers (one shift), 30 days for parents. | S   |
-| FR-AUTH-06 | After 5 failed sign-in attempts the account locks for 15 minutes.                                                     | S   |
+| ID         | Requirement                                                                                                                                                                                                                                                                    | Pri |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
+| FR-AUTH-01 | Parents and staff sign in with email (cashiers: username) and password.                                                                                                                                                                                                        | M   |
+| FR-AUTH-02 | Parents do not register themselves. The school creates each parent account in advance (FR-FAM-01), and the system emails the parent their sign-in details. The parent must change the temporary password at first sign-in and can update their name, phone and password later. | M   |
+| FR-AUTH-03 | Users can reset a forgotten password through an emailed link that expires after 30 minutes.                                                                                                                                                                                    | S   |
+| FR-AUTH-04 | Role-based access: each endpoint and admin screen is available only to the roles in the permission matrix (4.12).                                                                                                                                                              | M   |
+| FR-AUTH-05 | Sessions expire after inactivity: 30 minutes for admin roles, 12 hours for cashiers (one shift), 30 days for parents. Sessions use short-lived JWT access tokens with refresh tokens (B3).                                                                                     | S   |
+| FR-AUTH-06 | After 5 failed sign-in attempts the account locks for 15 minutes.                                                                                                                                                                                                              | C   |
 
 ### 4.2 Families (FAM)
 
-| ID        | Requirement                                                                         | Pri |
-| --------- | ----------------------------------------------------------------------------------- | --- |
-| FR-FAM-01 | A council admin can create a one-time invite code for a student, valid for 14 days. | M   |
-| FR-FAM-02 | A signed-in parent can enter another invite code to link an additional child.       | M   |
-| FR-FAM-03 | A student can be linked to at most two parent accounts.                             | M   |
-| FR-FAM-04 | A parent sees and manages only the students linked to their account.                | M   |
-| FR-FAM-05 | A council admin can unlink a parent from a student.                                 | S   |
+| ID        | Requirement                                                                                                                                                                                      | Pri |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
+| FR-FAM-01 | A council admin creates a parent account (full name, email, phone) and links it to one or more students; the system emails the parent a temporary password. No invite or linking codes are used. | M   |
+| FR-FAM-03 | A student can be linked to at most two parent accounts. The API enforces this limit and rejects a third link.                                                                                    | M   |
+| FR-FAM-04 | A parent sees and manages only the students linked to their account.                                                                                                                             | M   |
+| FR-FAM-05 | A council admin can unlink a parent from a student.                                                                                                                                              | S   |
 
 ### 4.3 Wallets and ledger (WAL)
 
@@ -330,17 +327,17 @@ Priority uses MoSCoW: **M** = Must (needed for the demo), **S** = Should, **C** 
 
 ### 4.5 POS and orders (POS)
 
-| ID        | Requirement                                                                                                                                                                                                   | Pri |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| FR-POS-01 | The POS shows the menu by category with prices in credits; unavailable items are hidden.                                                                                                                      | M   |
-| FR-POS-02 | The cashier builds a cart (add, remove, change quantity) and sees the total.                                                                                                                                  | M   |
-| FR-POS-03 | The POS accepts a card code from a USB scanner (keyboard input) or the webcam.                                                                                                                                | M   |
-| FR-POS-04 | After a scan the POS shows the student's photo, name, class, balance and remaining daily allowance.                                                                                                           | M   |
-| FR-POS-05 | Orders whose total exceeds the PIN threshold require the student's PIN.                                                                                                                                       | M   |
-| FR-POS-06 | A charge succeeds only if the card is active, the PIN (if needed) is correct, the balance is enough and the daily limit is not exceeded; otherwise it is declined with a specific reason and nothing changes. | M   |
-| FR-POS-07 | A cashier can void their own order on the same day with a reason; a cafeteria manager can void any same-day order. Voiding writes a reversal ledger entry and returns the credits.                            | M   |
-| FR-POS-08 | The POS lists today's orders for the signed-in cashier.                                                                                                                                                       | S   |
-| FR-POS-09 | The POS works by keyboard and touch alone, and the card-scan field keeps focus automatically.                                                                                                                 | S   |
+| ID        | Requirement                                                                                                                                                                                                                                               | Pri |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| FR-POS-01 | The POS shows the menu by category with prices in credits; unavailable items are hidden.                                                                                                                                                                  | M   |
+| FR-POS-02 | The cashier builds a cart (add, remove, change quantity) and sees the total.                                                                                                                                                                              | M   |
+| FR-POS-03 | The POS accepts a card code from a USB scanner (keyboard input) or the webcam.                                                                                                                                                                            | M   |
+| FR-POS-04 | After a scan the POS shows the student's photo, name, class, balance and remaining daily allowance. The cashier uses these details to confirm that the card belongs to the student at the counter, so one student cannot pay with another student's card. | M   |
+| FR-POS-05 | Orders whose total exceeds the PIN threshold require the student's PIN. This stops a taken or borrowed card from being used for large orders.                                                                                                             | M   |
+| FR-POS-06 | A charge succeeds only if the card is active, the PIN (if needed) is correct, the balance is enough and the daily limit is not exceeded; otherwise it is declined with a specific reason and nothing changes.                                             | M   |
+| FR-POS-07 | A cashier can void their own order on the same day with a reason; a cafeteria manager can void any same-day order. Voiding writes a reversal ledger entry and returns the credits.                                                                        | M   |
+| FR-POS-08 | The POS lists today's orders for the signed-in cashier.                                                                                                                                                                                                   | S   |
+| FR-POS-09 | The POS works by keyboard and touch alone, and the card-scan field keeps focus automatically.                                                                                                                                                             | S   |
 
 ### 4.6 Menu (MENU)
 
@@ -419,7 +416,7 @@ Priority uses MoSCoW: **M** = Must (needed for the demo), **S** = Should, **C** 
 | Sales reports                                             |        |         | ✓                 | ✓          | ✓             |
 | Cash top-ups, unmatched payments, refunds, adjustments    |        |         |                   | ✓          | ✓             |
 | Top-up, outstanding balance and reconciliation reports    |        |         |                   | ✓          | ✓             |
-| Students, cards, PINs, family invites                     |        |         |                   |            | ✓             |
+| Students, cards, PINs, parent accounts                    |        |         |                   |            | ✓             |
 | Staff users and roles, settings, kiosk devices, audit log |        |         |                   |            | ✓             |
 
 ## 5. Business rules
@@ -464,7 +461,7 @@ Priority uses MoSCoW: **M** = Must (needed for the demo), **S** = Should, **C** 
 - **NFR-SEC-03** The SePay webhook is accepted only with the configured API key; other requests get 401 and change nothing.
 - **NFR-SEC-04** Every endpoint enforces the permission matrix on the server; hiding buttons in the UI is not enough.
 - **NFR-SEC-05** Card codes are random (at least 64 bits of entropy) and unrelated to student codes.
-- **NFR-SEC-06** All input is validated on the server (DTO validation); database access goes only through the ORM or parameterised queries.
+- **NFR-SEC-06** All input is validated on the server (Zod schemas); database access goes only through the ORM or parameterised queries.
 - **NFR-SEC-07** Rate limits: sign-in 10 per minute per IP; kiosk PIN entry 5 per minute per device; webhook 60 per minute.
 
 ### 6.4 Privacy
@@ -596,7 +593,6 @@ erDiagram
   TOP_UP |o--o| SEPAY_TRANSACTION : "paid by"
   STUDENT ||--o{ CREDIT_REQUEST : sends
   CREDIT_REQUEST |o--o| TOP_UP : "leads to"
-  STUDENT ||--o{ INVITE_CODE : "linked by"
   USER ||--o{ NOTIFICATION : receives
   USER ||--o{ AUDIT_LOG : performs
 ```
@@ -607,20 +603,20 @@ Full attributes for each entity are in Part B, section B4.
 
 ## B1. Architecture approaches considered
 
-The team chose approach A: one Turborepo monorepo with four Next.js apps and one modular NestJS API on PostgreSQL.
+The team chose approach A: one Turborepo monorepo with four Next.js apps and one modular Express API on PostgreSQL.
 
-| Approach                                                                         | Trade-offs                                                                                                                                                                                                       | Decision   |
-| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| A. Turborepo monorepo: 4 Next.js apps + 1 modular NestJS API + PostgreSQL/Prisma | A real "system of apps" for the SRS and deployment diagram; each backend developer owns modules; money moves inside one database transaction. Cost: four Next.js apps to configure, softened by shared packages. | **Chosen** |
-| B. One Next.js app with /pos, /parent, /kiosk, /admin route groups + NestJS      | Least frontend setup, one login, one deploy. But not separate apps; kiosk and POS ship admin code; weaker architecture story.                                                                                    | Rejected   |
-| C. NestJS microservices (wallet, payment, notification) + message broker         | One service per backend developer, looks impressive. But moving money across services needs sagas or distributed transactions, where balances go wrong; extra infrastructure eats feature time.                  | Rejected   |
+| Approach                                                                          | Trade-offs                                                                                                                                                                                                       | Decision   |
+| --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| A. Turborepo monorepo: 4 Next.js apps + 1 modular Express API + PostgreSQL/Prisma | A real "system of apps" for the SRS and deployment diagram; each backend developer owns modules; money moves inside one database transaction. Cost: four Next.js apps to configure, softened by shared packages. | **Chosen** |
+| B. One Next.js app with /pos, /parent, /kiosk, /admin route groups + Express      | Least frontend setup, one login, one deploy. But not separate apps; kiosk and POS ship admin code; weaker architecture story.                                                                                    | Rejected   |
+| C. Express microservices (wallet, payment, notification) + message broker         | One service per backend developer, looks impressive. But moving money across services needs sagas or distributed transactions, where balances go wrong; extra infrastructure eats feature time.                  | Rejected   |
 
 ## B2. Repository layout
 
 ```
 schoolcoin/
 ├─ apps/
-│  ├─ api/          NestJS API (port 4000)
+│  ├─ api/          Express API (port 4000)
 │  ├─ pos/          Next.js POS (port 3001)
 │  ├─ parent/       Next.js parent PWA (port 3002)
 │  ├─ kiosk/        Next.js kiosk (port 3003)
@@ -637,23 +633,23 @@ schoolcoin/
 
 ## B3. Technology stack
 
-| Concern             | Choice                                                                                                                      |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Language            | TypeScript (strict) everywhere                                                                                              |
-| Monorepo            | pnpm workspaces + Turborepo                                                                                                 |
-| Front-ends          | Next.js 15 (App Router), React, Tailwind CSS, shadcn/ui, TanStack Query, React Hook Form + Zod                              |
-| Card scanning       | USB scanner as keyboard input; webcam via @zxing/browser                                                                    |
-| QR on printed cards | qrcode package in the admin print view                                                                                      |
-| Backend             | NestJS 11, class-validator DTOs, @nestjs/swagger, @nestjs/schedule, @nestjs/throttler                                       |
-| Database            | PostgreSQL 16 + Prisma ORM (raw SQL for SELECT … FOR UPDATE)                                                                |
-| Auth                | JWT access token (15 min) + refresh token in an httpOnly cookie; Argon2id hashing                                           |
-| Real-time           | Server-Sent Events from NestJS (@Sse) for top-up status                                                                     |
-| File uploads        | Student photos and menu images uploaded in the admin page, stored on a Docker volume, served by the API at /uploads         |
-| Email               | Nodemailer over SMTP; Mailpit locally                                                                                       |
-| Payments            | SePay webhook + SePay VietQR image URL; SePay Test mode for development and demo                                            |
-| Testing             | Jest (unit), Supertest (API end-to-end on a test database), Playwright (one happy path per app)                             |
-| CI                  | GitHub Actions: lint, typecheck, test, build                                                                                |
-| Demo deployment     | Docker Compose on one VPS, or Vercel for the Next.js apps + Railway/Render for API and Postgres; ngrok if run from a laptop |
+| Concern             | Choice                                                                                                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language            | TypeScript (strict) everywhere                                                                                                                                                    |
+| Monorepo            | pnpm workspaces + Turborepo                                                                                                                                                       |
+| Front-ends          | Next.js 15 (App Router), React, Tailwind CSS, shadcn/ui, TanStack Query, React Hook Form + Zod                                                                                    |
+| Card scanning       | USB scanner as keyboard input; webcam via @zxing/browser                                                                                                                          |
+| QR on printed cards | qrcode package in the admin print view                                                                                                                                            |
+| Backend             | Express 5, Zod request validation, OpenAPI spec generated from the Zod schemas (@asteasolutions/zod-to-openapi) and served with swagger-ui-express, node-cron, express-rate-limit |
+| Database            | PostgreSQL 16 + Prisma ORM (raw SQL for SELECT … FOR UPDATE)                                                                                                                      |
+| Auth                | JWT access token (15 min) + refresh token in an httpOnly cookie; Argon2id hashing                                                                                                 |
+| Real-time           | Server-Sent Events from an Express route (Content-Type: text/event-stream) for top-up status                                                                                      |
+| File uploads        | Student photos and menu images uploaded in the admin page, stored on a Docker volume, served by the API at /uploads                                                               |
+| Email               | Nodemailer over SMTP; Mailpit locally                                                                                                                                             |
+| Payments            | SePay webhook + SePay VietQR image URL; SePay Test mode for development and demo                                                                                                  |
+| Testing             | Jest (unit), Supertest (API end-to-end on a test database), Playwright (one happy path per app)                                                                                   |
+| CI                  | GitHub Actions: lint, typecheck, test, build                                                                                                                                      |
+| Demo deployment     | Docker Compose on one VPS, or Vercel for the Next.js apps + Railway/Render for API and Postgres; ngrok if run from a laptop                                                       |
 
 ## B4. Data model (Prisma schema outline)
 
@@ -679,6 +675,7 @@ model User {
   passwordHash  String
   status        UserStatus @default(ACTIVE)
   failedLogins  Int        @default(0)
+  mustChangePassword Boolean @default(false) // true for a preset parent account until the first password change
   lockedUntil   DateTime?
   emailPrefs    Json?                 // per-notification-type email on/off
 }
@@ -699,7 +696,6 @@ model Student {
 }
 
 model ParentStudent { parentId String  studentId String  linkedAt DateTime @default(now())  @@id([parentId, studentId]) }
-model InviteCode    { code String @id  studentId String  expiresAt DateTime  usedById String?  usedAt DateTime? }
 model Card          { id String @id @default(uuid())  studentId String  code String @unique  status CardStatus  issuedAt DateTime  issuedById String }
 
 model Wallet {
@@ -846,21 +842,21 @@ Base path /api/v1, JSON throughout. Errors use { "error": { "code": "DAILY\_LIMI
 
 ### Auth
 
-| Method | Path                                        | Notes                                                            |
-| ------ | ------------------------------------------- | ---------------------------------------------------------------- |
-| POST   | /auth/login                                 | email or username + password → access token; sets refresh cookie |
-| POST   | /auth/refresh                               | new access token from the cookie                                 |
-| POST   | /auth/logout                                | clears the refresh token                                         |
-| POST   | /auth/register-parent                       | name, email, phone, password, inviteCode                         |
-| POST   | /auth/forgot-password, /auth/reset-password | emailed token                                                    |
-| GET    | /me                                         | profile and role                                                 |
+| Method | Path                                        | Notes                                                                           |
+| ------ | ------------------------------------------- | ------------------------------------------------------------------------------- |
+| POST   | /auth/login                                 | email or username + password → access token; sets refresh cookie                |
+| POST   | /auth/refresh                               | new access token from the cookie                                                |
+| POST   | /auth/logout                                | clears the refresh token                                                        |
+| POST   | /auth/change-password                       | {currentPassword, newPassword}; required at first sign-in with a preset account |
+| POST   | /auth/forgot-password, /auth/reset-password | emailed token                                                                   |
+| GET    | /me                                         | profile and role                                                                |
 
 ### Parent
 
 | Method           | Path                                                             | Notes                                                                                                                |
 | ---------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | GET              | /parent/children                                                 | linked children with balance                                                                                         |
-| POST             | /parent/children/link                                            | {inviteCode}                                                                                                         |
+| PATCH            | /me                                                              | {fullName, phone}; a parent updates their own details                                                                |
 | GET              | /parent/children/:studentId                                      | balance, today's spending, controls, card status                                                                     |
 | GET              | /parent/children/:studentId/transactions                         | ?from&to&type&page — ledger with order items                                                                         |
 | PATCH            | /parent/children/:studentId/controls                             | {dailyLimitCredits, lowBalanceThreshold}; null = off                                                                 |
@@ -901,41 +897,41 @@ Base path /api/v1, JSON throughout. Errors use { "error": { "code": "DAILY\_LIMI
 
 ### Admin
 
-| Method            | Path                                                                  | Notes                                        |
-| ----------------- | --------------------------------------------------------------------- | -------------------------------------------- |
-| GET, POST, PATCH  | /admin/students, /admin/students/:id                                  | CRUD, deactivate (balance must be 0)         |
-| POST              | /admin/students/import                                                | CSV upload; per-row result                   |
-| POST              | /admin/students/:id/cards                                             | issue a new card (replaces the active one)   |
-| POST              | /admin/cards/:id/lock                                                 |                                              |
-| GET               | /admin/cards/print                                                    | ?studentIds=… printable page                 |
-| PUT               | /admin/students/:id/pin                                               | set or reset PIN                             |
-| POST              | /admin/students/:id/invites                                           | create an invite code                        |
-| DELETE            | /admin/students/:id/parents/:parentId                                 | unlink a parent                              |
-| GET, POST, PATCH  | /admin/users, /admin/users/:id                                        | staff accounts; managers limited to cashiers |
-| GET, POST, PATCH  | /admin/menu/categories, /admin/menu/items                             | menu management                              |
-| POST              | /admin/menu/items/:id/sold-out                                        | today only                                   |
-| POST              | /admin/topups/cash                                                    | {studentId, amountCredits, note}             |
-| GET               | /admin/sepay-transactions                                             | ?status=UNMATCHED&from&to                    |
-| POST              | /admin/sepay-transactions/:id/assign                                  | {studentId, note?}                           |
-| POST              | /admin/sepay-transactions/:id/ignore                                  | {reason}                                     |
-| GET               | /admin/topups/review                                                  | top-ups flagged needsReview                  |
-| POST              | /admin/refunds                                                        | {studentId, amountCredits, method, note}     |
-| POST              | /admin/adjustments                                                    | {studentId, amountCredits (±), reason}       |
-| GET               | /admin/reports/sales, /topups, /balances, /reconciliation, /dashboard | ?from&to\&groupBy; ?format=csv               |
-| GET               | /admin/audit-logs                                                     | filter by actor, action, entity, date        |
-| GET, PUT          | /admin/settings                                                       |                                              |
-| GET, POST, DELETE | /admin/kiosk-devices                                                  | registering returns the device key once      |
+| Method            | Path                                                                  | Notes                                                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET, POST, PATCH  | /admin/students, /admin/students/:id                                  | CRUD, deactivate (balance must be 0)                                                                                                                            |
+| POST              | /admin/students/import                                                | CSV upload; per-row result                                                                                                                                      |
+| POST              | /admin/students/:id/cards                                             | issue a new card (replaces the active one)                                                                                                                      |
+| POST              | /admin/cards/:id/lock                                                 |                                                                                                                                                                 |
+| GET               | /admin/cards/print                                                    | ?studentIds=… printable page                                                                                                                                    |
+| PUT               | /admin/students/:id/pin                                               | set or reset PIN                                                                                                                                                |
+| POST              | /admin/parents, /admin/students/:id/parents                           | create a preset parent account {fullName, email, phone, studentIds} and email a temporary password; link an existing parent {parentId}, at most two per student |
+| DELETE            | /admin/students/:id/parents/:parentId                                 | unlink a parent                                                                                                                                                 |
+| GET, POST, PATCH  | /admin/users, /admin/users/:id                                        | staff accounts; managers limited to cashiers                                                                                                                    |
+| GET, POST, PATCH  | /admin/menu/categories, /admin/menu/items                             | menu management                                                                                                                                                 |
+| POST              | /admin/menu/items/:id/sold-out                                        | today only                                                                                                                                                      |
+| POST              | /admin/topups/cash                                                    | {studentId, amountCredits, note}                                                                                                                                |
+| GET               | /admin/sepay-transactions                                             | ?status=UNMATCHED&from&to                                                                                                                                       |
+| POST              | /admin/sepay-transactions/:id/assign                                  | {studentId, note?}                                                                                                                                              |
+| POST              | /admin/sepay-transactions/:id/ignore                                  | {reason}                                                                                                                                                        |
+| GET               | /admin/topups/review                                                  | top-ups flagged needsReview                                                                                                                                     |
+| POST              | /admin/refunds                                                        | {studentId, amountCredits, method, note}                                                                                                                        |
+| POST              | /admin/adjustments                                                    | {studentId, amountCredits (±), reason}                                                                                                                          |
+| GET               | /admin/reports/sales, /topups, /balances, /reconciliation, /dashboard | ?from&to\&groupBy; ?format=csv                                                                                                                                  |
+| GET               | /admin/audit-logs                                                     | filter by actor, action, entity, date                                                                                                                           |
+| GET, PUT          | /admin/settings                                                       |                                                                                                                                                                 |
+| GET, POST, DELETE | /admin/kiosk-devices                                                  | registering returns the device key once                                                                                                                         |
 
 ## B8. Front-end screens
 
 | App        | Screens                                                                                                                                                                                                                                                                                                                      |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | POS        | Sign-in → main screen (menu grid left; cart and student panel right; scan field always focused) → PIN pad overlay → paid / declined result → today's orders → void dialog                                                                                                                                                    |
-| Parent app | Sign-in / register with invite code → children list (balance cards) → child detail (balance, today's spending, transactions by day, controls, lock card) → top-up (amount → QR with countdown → success) → requests → notifications → account settings                                                                       |
+| Parent app | Sign-in (change the temporary password at first sign-in) → children list (balance cards) → child detail (balance, today's spending, transactions by day, controls, lock card) → top-up (amount → QR with countdown → success) → requests → notifications → account settings                                                  |
 | Kiosk      | Idle "Scan your card" → PIN pad → home (balance, today's spending, last 10 purchases, request status) → request credits (amount buttons, note) → confirmation → auto sign-out                                                                                                                                                |
 | Admin page | Dashboard → students (list, import, detail with cards, PIN, parents, wallet history) → card printing → staff users → menu → cash top-up → unmatched payments → top-ups to review → refunds and adjustments → reports → audit log → settings → kiosk devices. The sidebar shows only the sections the signed-in role may use. |
 
-## B9. Background jobs (@nestjs/schedule)
+## B9. Background jobs (node-cron)
 
 | Job               | Schedule     | Action                                                                                        |
 | ----------------- | ------------ | --------------------------------------------------------------------------------------------- |
@@ -957,29 +953,29 @@ Base path /api/v1, JSON throughout. Errors use { "error": { "code": "DAILY\_LIMI
 
 ## B12. Team split
 
-The split follows module ownership so people rarely edit the same files; fill in names.
+The split follows module ownership so people rarely edit the same files.
 
-| Person | Owns                                                                                                                            |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| BE-1   | Auth, users and roles, families and invite codes, permission guards, audit log interceptor                                      |
-| BE-2   | Wallet and ledger service, POS lookup / charge / void, parental controls and daily limit, concurrency tests                     |
-| BE-3   | Top-ups, SePay webhook, unmatched payments, cash top-ups, refunds and adjustments, reconciliation report                        |
-| BE-4   | Menu, kiosk sessions and devices, credit requests, notifications (email + SSE), sales and top-up reports, Docker, CI, seed data |
-| FE-1   | packages/ui and api-client, POS app, kiosk app, card print view                                                                 |
-| FE-2   | Parent app, admin page                                                                                                          |
+| Person                | Owns                                                                                                                                                                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE-1 · Lê Đức Anh     | Monorepo, Docker Compose and CI; wallet and ledger service; top-ups (SePay webhook, VietQR, SSE), cash top-ups, unmatched payments, refunds and adjustments; demo deployment                                                             |
+| BE-2 · Đỗ Huy Du      | POS lookup / charge / void with idempotency; kiosk sessions and devices; credit requests; concurrency, end-to-end and load tests                                                                                                         |
+| BE-3 · Trần Đức Nam   | Auth, users and roles, role-check middleware, preset parent account sign-in; Swagger setup and API conventions; parental controls, daily limit and PIN checks; parent API; reports (sales, top-ups, balances, reconciliation, dashboard) |
+| BE-4 · Đặng Xuân Bách | Admin API (students, cards, PINs, parent accounts, staff users, menu, settings, kiosk devices) and the admin page; notifications (in-app, email); audit log and consistency check; seed data                                             |
+| FE-1 · Lê Đình Vĩnh   | packages/ui and api-client, parent app, kiosk app                                                                                                                                                                                        |
+| FE-2 · Hoàng Anh      | POS app; admin reports and dashboard screens with BE-4                                                                                                                                                                                   |
 
-The admin page is the largest front-end. If FE-2 falls behind, backend developers build the admin screens for their own modules from the shared ui components.
+BE-4 builds the admin page, the largest front-end; FE-2 helps with its reports and dashboard screens in Sprint 4.
 
 ## B13. Milestones
 
-No deadline is set yet, so this plan assumes 8 weeks in four 2-week sprints; stretch or compress to the real date.
+The plan runs over weeks 9–16 of the semester in four 2-week sprints. The sprint plan sheet breaks each sprint into tasks with owners and story points.
 
 | Sprint                 | Weeks | Deliverables                                                                                                                                             |
 | ---------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 — Foundation         | 1–2   | Monorepo, Docker Compose, CI; Prisma schema and migrations; auth and roles; seed data; ui package and sign-in screens in all four apps; SRS v1 submitted |
-| 2 — Pay at the counter | 3–4   | Wallet and ledger, menu, POS lookup / charge / void; students, cards, PINs and menu in admin; POS usable end to end with cash top-ups                    |
-| 3 — Money in           | 5–6   | Top-ups, SePay webhook, SSE; parent app (children, transactions, top-up, controls); kiosk and credit requests; notifications                             |
-| 4 — Control and polish | 7–8   | Unmatched payments, refunds, adjustments, reports, audit log; concurrency and end-to-end tests; deployment; demo rehearsal and final report              |
+| 1 — Foundation         | 9–10  | Monorepo, Docker Compose, CI; Prisma schema and migrations; auth and roles; seed data; ui package and sign-in screens in all four apps; SRS v1 submitted |
+| 2 — Pay at the counter | 11–12 | Wallet and ledger, menu, POS lookup / charge / void; students, cards, PINs and menu in admin; POS usable end to end with cash top-ups                    |
+| 3 — Money in           | 13–14 | Top-ups, SePay webhook, SSE; parent app (children, transactions, top-up, controls); kiosk and credit requests; notifications                             |
+| 4 — Control and polish | 15–16 | Unmatched payments, refunds, adjustments, reports, audit log; concurrency and end-to-end tests; deployment; demo rehearsal and final report              |
 
 **Demo script (about 8 minutes):**
 
@@ -999,10 +995,10 @@ These weren't discussed explicitly; they are proposals the team can change:
 - Students have no accounts; card + PIN is their only interface.
 - PIN threshold 50 credits; PIN lockout after 5 attempts for 15 minutes.
 - Top-ups of 10–2,000 credits; pending top-ups expire after 30 minutes, but late payments are still credited.
-- Up to two parents per student; one-time invite codes valid for 14 days.
+- Up to two parents per student; parent accounts are created by the school and the sign-in details are emailed (no invite codes).
 - Notifications in the app plus email, not web push (unreliable for PWAs on iPhone).
 - Same-day voids only; later corrections are accountant adjustments.
 - Kiosk devices must be registered; the kiosk screen signs out after 30 seconds idle.
 - At most 3 credit requests per student per day; requests expire after 7 days.
 - Vietnamese user interface; this document in English.
-- 8-week timeline until the real deadline is known.
+- Weeks 9–16, four 2-week sprints (see B13).
