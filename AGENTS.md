@@ -17,3 +17,7 @@ Before finishing: `pnpm lint:design`, `pnpm lint`, `pnpm typecheck` must pass.
 ## Backend (`apps/api`)
 
 Money is stored in integer credits; "today" is the Asia/Ho_Chi_Minh day. Shared enums, error codes, constants and the permission matrix live in `packages/types`: keep the names `apps/api` imports stable.
+
+## Requirements
+
+The spec is [`docs/srs/schoolcoin-srs-v1.0.md`](docs/srs/schoolcoin-srs-v1.0.md) (Part A requirements, Part B technical design).
