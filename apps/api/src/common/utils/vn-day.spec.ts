@@ -1,4 +1,4 @@
-import { endOfVnDay, startOfVnDay } from './vn-day';
+import { endOfVnDay, startOfVnDay, vnToday } from './vn-day';
 
 describe('vn-day', () => {
   it('returns 17:00 UTC of the previous day for a VN morning', () => {
@@ -18,5 +18,12 @@ describe('vn-day', () => {
   it('end of day is 24 hours after start', () => {
     const now = new Date('2026-03-10T01:00:00Z');
     expect(endOfVnDay(now).getTime() - startOfVnDay(now).getTime()).toBe(86_400_000);
+  });
+
+  it('vnToday is the VN calendar date at UTC midnight', () => {
+    // 2026-03-10 23:30 UTC = 2026-03-11 06:30 in Vietnam
+    expect(vnToday(new Date('2026-03-10T23:30:00Z')).toISOString()).toBe(
+      '2026-03-11T00:00:00.000Z',
+    );
   });
 });

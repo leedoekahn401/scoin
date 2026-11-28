@@ -1,8 +1,11 @@
 import { PERMISSIONS } from '@schoolcoin/types';
 import { Router } from 'express';
+import { currentUser, idParam } from '../../common/http/request';
 import { route } from '../../common/http/route';
-import { notImplemented } from '../../common/utils/todo';
 import { createOrderSchema } from './dto/create-order.dto';
+import { lookupSchema } from './dto/lookup.dto';
+import { voidOrderSchema } from './dto/void-order.dto';
+import { posService } from './pos.service';
 
 /** BE-2 — FR-POS-01…09, UC-08, UC-09 */
 export const posRouter = Router();
@@ -15,7 +18,7 @@ route(posRouter, {
   name: 'menu',
   tag,
   roles: PERMISSIONS.POS_CHARGE,
-  handler: () => notImplemented('FR-POS-01'),
+  handler: () => posService.menu(),
 });
 
 /** {cardCode} → studentId, fullName, className, photoUrl, balance, remainingToday, pinThreshold. */
@@ -26,7 +29,8 @@ route(posRouter, {
   tag,
   roles: PERMISSIONS.POS_CHARGE,
   status: 200,
-  handler: () => notImplemented('FR-POS-04'),
+  body: lookupSchema,
+  handler: (req) => posService.lookup(req.body.cardCode),
 });
 
 /**
@@ -40,7 +44,7 @@ route(posRouter, {
   tag,
   roles: PERMISSIONS.POS_CHARGE,
   body: createOrderSchema,
-  handler: () => notImplemented('FR-POS-06'),
+  handler: (req) => posService.charge(currentUser(req).id, req.body),
 });
 
 /** Today's orders: own for a cashier, all for a manager or admin. */
@@ -50,7 +54,7 @@ route(posRouter, {
   name: 'today',
   tag,
   roles: PERMISSIONS.VOID_OWN_ORDER,
-  handler: () => notImplemented('FR-POS-08'),
+  handler: (req) => posService.today(currentUser(req)),
 });
 
 /** {reason} — same day only; cashiers only their own orders (FR-POS-07, BR-10). */
@@ -61,5 +65,7 @@ route(posRouter, {
   tag,
   roles: PERMISSIONS.VOID_OWN_ORDER,
   status: 200,
-  handler: () => notImplemented('FR-POS-07'),
+  body: voidOrderSchema,
+  audit: { action: 'order.void', entity: 'Order' },
+  handler: (req) => posService.void(currentUser(req), idParam(req), req.body.reason),
 });
