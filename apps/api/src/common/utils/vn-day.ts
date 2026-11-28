@@ -12,3 +12,8 @@ export function startOfVnDay(now: Date = new Date()): Date {
 export function endOfVnDay(now: Date = new Date()): Date {
   return new Date(startOfVnDay(now).getTime() + DAY_MS);
 }
+
+/** Today's VN calendar date at UTC midnight: the value Prisma reads back from a `@db.Date` column. */
+export function vnToday(now: Date = new Date()): Date {
+  return new Date(startOfVnDay(now).getTime() + VN_OFFSET_MS);
+}

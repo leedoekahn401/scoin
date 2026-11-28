@@ -1032,6 +1032,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    PosLookupDto: {
+      /** @description Scanned card code */
+      cardCode: string;
+    };
     CreateOrderDto: {
       /** @description Scanned card code */
       cardCode: string;
@@ -1043,6 +1047,16 @@ export interface components {
       pin?: string;
       /** @description One per checkout; retries reuse it (NFR-REL-02) */
       idempotencyKey: string;
+    };
+    VoidOrderDto: {
+      reason: string;
+    };
+    CreateTopUpDto: {
+      studentId: string;
+      /** @description TOPUP_MIN_CREDITS–TOPUP_MAX_CREDITS (FR-TOP-01) */
+      amountCredits: number;
+      /** @description The kiosk request this top-up answers */
+      creditRequestId?: string;
     };
   };
   responses: never;
@@ -1695,7 +1709,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PosLookupDto'];
+      };
+    };
     responses: {
       200: {
         headers: {
@@ -1752,7 +1770,11 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VoidOrderDto'];
+      };
+    };
     responses: {
       200: {
         headers: {
@@ -2195,7 +2217,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTopUpDto'];
+      };
+    };
     responses: {
       201: {
         headers: {
